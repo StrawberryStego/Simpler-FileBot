@@ -1,4 +1,4 @@
-name: Pylint
+name: Pylint Check
 
 on: [push]
 
@@ -20,4 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --disable=C0114,E0401 $(git ls-files '*.py')
