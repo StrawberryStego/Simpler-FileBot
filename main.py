@@ -1,6 +1,7 @@
 import sys
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget
+from core import CorePage
 
 
 class MainWindow(QMainWindow):
@@ -21,8 +22,7 @@ class MainWindow(QMainWindow):
         # QStackedWidget stores different pages/widgets that can be switched to/from.
         # See: https://doc.qt.io/qt-6/qstackedwidget.html.
         self.pages = QStackedWidget()
-        # Adding temporary empty page.
-        self.pages.addWidget(QWidget())
+        self.pages.addWidget(CorePage())
         central_widget_layout.addWidget(self.pages)
 
         # Connects signal for when the user clicks on a menu tab to setCurrentIndex()'s slot to change pages.
