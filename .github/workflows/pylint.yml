@@ -1,6 +1,6 @@
 name: Pylint Check
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   pylint_check:
