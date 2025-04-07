@@ -1,5 +1,7 @@
+import os
 import sys
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 from core import CorePage
 
@@ -43,4 +45,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
-    app.exec()
+
+    # If running as a GitHub Actions build check, auto-quit after one second since app is a UI.
+    if os.environ.get("CI", "false").lower() == "true":
+        QTimer.singleShot(1000, app.quit)
+
+    sys.exit(app.exec())
