@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, QDialog
 
 
 class DragAndDropFilesWidget(QListWidget):
@@ -55,6 +55,9 @@ class CoreRenamerWidget(QWidget):
         buttons_layout.addWidget(rename_button)
         buttons_layout.addWidget(undo_button)
 
+        # Opens a QDialog widget for user option selection when match button is clicked.
+        match_button.clicked.connect(self.open_match_options_widget)
+
         # Right output box layout: Title + Box.
         right_box_layout = QVBoxLayout()
         right_box = QListWidget()
@@ -67,6 +70,29 @@ class CoreRenamerWidget(QWidget):
         files_ui_layout.addLayout(left_box_layout)
         files_ui_layout.addLayout(buttons_layout)
         files_ui_layout.addLayout(right_box_layout)
+
+    class MatchOptionsWidget(QDialog):
+        """
+        Popup to allow users to see matched information about their files.
+        Users can update any data mismatches and choose a DB to match from.
+        """
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+
+            self.setWindowTitle("Match Options")
+            self.resize(400, 300)
+
+            layout = QVBoxLayout(self)
+            layout.addWidget(QWidget())
+            self.setLayout(layout)
+
+    @Slot()
+    def open_match_options_widget(self):
+        """Opens a MatchOptionsWidget and passes instance of CoreRenamerWidget in as parent for sizing/positioning."""
+
+        match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self)
+        match_options_widget.exec()
 
 
 class CorePage(QMainWindow):
