@@ -3,9 +3,9 @@ import sys
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
-from core import CorePage
-from formats import FormatsPage
-from preferences import PreferencesPage
+from pages.core import CorePage
+from pages.formats import FormatsPage
+from pages.preferences import PreferencesPage
 
 
 class MainWindow(QMainWindow):
