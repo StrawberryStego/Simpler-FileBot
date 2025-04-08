@@ -5,6 +5,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 from core import CorePage
 from formats import FormatsPage
+from preferences import PreferencesPage
 
 
 class MainWindow(QMainWindow):
@@ -26,6 +27,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget()
         self.pages.addWidget(CorePage())
         self.pages.addWidget(FormatsPage())
+        self.pages.addWidget(PreferencesPage())
         self.pages.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         central_widget.addWidget(self.pages)
 
