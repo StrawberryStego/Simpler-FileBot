@@ -1,5 +1,8 @@
 from PySide6.QtCore import Qt, Slot
-from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, QDialog
+from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
+    QDialog, QListWidgetItem
+
+from backend.media_record import MediaRecord
 
 
 class DragAndDropFilesWidget(QListWidget):
@@ -24,7 +27,12 @@ class DragAndDropFilesWidget(QListWidget):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
-                self.addItem(file_path)
+                media_record = MediaRecord(file_path)
+
+                # Set the displayed text for the file and tie the corresponding MediaRecord to that list entry.
+                list_item = QListWidgetItem(media_record.file_name)
+                list_item.setData(Qt.ItemDataRole.UserRole, media_record)
+                self.addItem(list_item)
             event.acceptProposedAction()
 
 
