@@ -85,7 +85,6 @@ class CoreRenamerWidget(QWidget):
 
             layout = QVBoxLayout(self)
             layout.addWidget(QWidget())
-            self.setLayout(layout)
 
     @Slot()
     def open_match_options_widget(self):
