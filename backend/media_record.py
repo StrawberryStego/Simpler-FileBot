@@ -1,5 +1,5 @@
 import os
-from typing import Iterable
+from typing import Iterable, Set
 
 from guessit import guessit
 
@@ -40,4 +40,22 @@ class MediaRecord:
         Returns True if every MediaRecord in the iterable has a title.
         For episodes, 'title' refers to the series name... 'episode_title' refers to the name of the episode.
         """
+
         return all(record.title is not None for record in media_record_list)
+
+    @staticmethod
+    def get_unique_titles(media_record_list: Iterable["MediaRecord"]) -> Set[str]:
+        """
+        Returns a set of unique titles from a media_record_list.
+        Useful to check the validity of an episode file list, e.g., whether there are multiple tv series.
+        """
+
+        # Gather unique series titles; ignore records without a series title.
+        return {record.title for record in media_record_list if record.title is not None}
+
+    @staticmethod
+    def update_title_for_all_records(title: str, media_record_list: Iterable["MediaRecord"]):
+        for media_record in media_record_list:
+            print(title)
+            print(media_record.title)
+            media_record.title = title
