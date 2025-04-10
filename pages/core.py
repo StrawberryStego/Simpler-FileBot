@@ -68,11 +68,11 @@ class CoreRenamerWidget(QWidget):
 
         # Right output box layout: Title + Box.
         right_box_layout = QVBoxLayout()
-        right_box = QListWidget()
+        self.right_box = QListWidget()
         right_box_label = QLabel("Output Filenames")
         right_box_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         right_box_layout.addWidget(right_box_label)
-        right_box_layout.addWidget(right_box)
+        right_box_layout.addWidget(self.right_box)
 
         # Combine the core renamer components and add to CoreRenamerWidget.
         files_ui_layout.addLayout(left_box_layout)
