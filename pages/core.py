@@ -150,7 +150,22 @@ class CoreRenamerWidget(QWidget):
 
         @staticmethod
         def create_database_selection_layout() -> QWidget:
-            return QWidget()
+            widget = QWidget()
+
+            layout = QHBoxLayout(widget)
+
+            ani_db_button = QPushButton("AniDB")
+            the_tv_db_button = QPushButton("TheTVDB")
+            the_movie_db_button = QPushButton("TheMovieDB")
+            tv_maze_db_button = QPushButton("TVMaze")
+            guessit_button = QPushButton("Attempt to match by filename only")
+            layout.addWidget(ani_db_button)
+            layout.addWidget(the_tv_db_button)
+            layout.addWidget(the_movie_db_button)
+            layout.addWidget(tv_maze_db_button)
+            layout.addWidget(guessit_button)
+
+            return widget
 
     @Slot()
     def open_match_options_widget(self):
