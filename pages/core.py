@@ -48,11 +48,11 @@ class CoreRenamerWidget(QWidget):
         # Left input box layout: Title + Box.
         left_box_layout = QVBoxLayout()
         # We want a subclass of QListWidget for drag-and-drop capabilities for the input box.
-        left_box = DragAndDropFilesWidget()
+        self.left_box = DragAndDropFilesWidget()
         left_box_label = QLabel("Input Filenames")
         left_box_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         left_box_layout.addWidget(left_box_label)
-        left_box_layout.addWidget(left_box)
+        left_box_layout.addWidget(self.left_box)
 
         # Utility Buttons contained within a VBox.
         buttons_layout = QVBoxLayout()
@@ -85,21 +85,36 @@ class CoreRenamerWidget(QWidget):
         Users can update any data mismatches and choose a DB to match from.
         """
 
-        def __init__(self, parent=None):
+        def __init__(self, files_widget: DragAndDropFilesWidget, parent=None):
             super().__init__(parent)
 
             self.setWindowTitle("Match Options")
             self.resize(400, 300)
+            self.files_widget = files_widget
 
             layout = QVBoxLayout(self)
-            layout.addWidget(QWidget())
+
+            # Retrieve media records from files_widget.
+            media_records = []
+            for index in range(self.files_widget.count()):
+                list_element = self.files_widget.item(index)
+                media_record = list_element.data(Qt.ItemDataRole.UserRole)
+                media_records.append(media_record)
+
+            temp_label = QLabel(f"Got {len(media_records)} files.")
+
+            layout.addWidget(temp_label)
 
     @Slot()
     def open_match_options_widget(self):
-        """Opens a MatchOptionsWidget and passes instance of CoreRenamerWidget in as parent for sizing/positioning."""
+        """
+        Opens a MatchOptionsWidget if there are input files and passes instance of CoreRenamerWidget
+        in as parent for sizing/positioning as well as the left input box (QListWidget).
+        """
 
-        match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self)
-        match_options_widget.exec()
+        if self.left_box.count() > 0:
+            match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self.left_box)
+            match_options_widget.exec()
 
 
 class CorePage(QMainWindow):
