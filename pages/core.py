@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QDialog, QListWidgetItem
+    QDialog, QListWidgetItem, QLineEdit, QBoxLayout
 
 from backend.media_record import MediaRecord
 
@@ -101,9 +101,56 @@ class CoreRenamerWidget(QWidget):
                 media_record = list_element.data(Qt.ItemDataRole.UserRole)
                 media_records.append(media_record)
 
-            temp_label = QLabel(f"Got {len(media_records)} files.")
+            self.populate_layout(layout, media_records)
 
-            layout.addWidget(temp_label)
+        def populate_layout(self, layout: QBoxLayout, media_records: list):
+            """Populates the layout with UI components based on MediaRecords."""
+
+            # Contains a mix of movies and shows.
+            if MediaRecord.has_movies(media_records) and MediaRecord.has_episodes(media_records):
+                error_label = QLabel("Cannot rename both movies and tv series at the same time!")
+                layout.addWidget(error_label)
+
+            # Contains only episodes but there seems to be multiple tv shows.
+            elif not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) > 1:
+                error_label = QLabel("Cannot rename multiple tv series at the same time!")
+                layout.addWidget(error_label)
+
+            # Contains only episodes.
+            elif not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) <= 1:
+                unique_titles = MediaRecord.get_unique_titles(media_records)
+                series_title = unique_titles.pop() if unique_titles else "Could not match title!"
+
+                # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.
+                title_label = QLabel("Series Title:")
+                input_update_container = QWidget()
+                input_update_container_layout = QHBoxLayout(input_update_container)
+                input_box = QLineEdit()
+                input_box.setText(series_title)
+                update_button = QPushButton("Update")
+                update_button.clicked.connect(lambda:
+                                              MediaRecord.update_title_for_all_records(input_box.text(), media_records))
+                input_update_container_layout.addWidget(input_box)
+                input_update_container_layout.addWidget(update_button)
+
+                database_buttons_widget = self.create_database_selection_layout()
+
+                layout.addWidget(title_label)
+                layout.addWidget(input_update_container)
+                layout.addWidget(database_buttons_widget)
+
+            # Contains only movies.
+            elif not MediaRecord.has_episodes(media_records):
+                label = QLabel(f"Got {len(media_records)} movie files!")
+
+                database_buttons_widget = self.create_database_selection_layout()
+
+                layout.addWidget(label)
+                layout.addWidget(database_buttons_widget)
+
+        @staticmethod
+        def create_database_selection_layout() -> QWidget:
+            return QWidget()
 
     @Slot()
     def open_match_options_widget(self):

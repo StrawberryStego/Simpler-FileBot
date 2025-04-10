@@ -70,3 +70,18 @@ def test_list_records_all_have_titles():
 def test_list_records_do_not_all_have_titles():
     media_record_list = [MediaRecord(""), MediaRecord(".mkv"), MediaRecord("()[].mkv")]
     assert not MediaRecord.all_have_titles(media_record_list)
+
+
+def test_get_unique_titles_from_empty_record_list_retrieve_nothing():
+    media_record_list = [MediaRecord(".mkv"), MediaRecord("")]
+    assert len(MediaRecord.get_unique_titles(media_record_list)) == 0
+
+
+def test_get_unique_titles_from_record_list_with_one_show_retrieve_one_title():
+    media_record_list = [MediaRecord("Andor.S01E01.mkv"), MediaRecord("Andor.S01E05.mkv")]
+    assert len(MediaRecord.get_unique_titles(media_record_list)) == 1
+
+
+def test_get_unique_titles_from_record_list_with_two_shows_retrieve_two_titles():
+    media_record_list = [MediaRecord("The.West.Wing.S01E05.Title.mkv"), MediaRecord("Game.Of.Thrones.S02E05.mkv")]
+    assert len(MediaRecord.get_unique_titles(media_record_list)) == 2
