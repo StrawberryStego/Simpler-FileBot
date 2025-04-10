@@ -89,7 +89,6 @@ class CoreRenamerWidget(QWidget):
             super().__init__(parent)
 
             self.setWindowTitle("Match Options")
-            self.resize(400, 300)
             self.files_widget = files_widget
 
             layout = QVBoxLayout(self)
