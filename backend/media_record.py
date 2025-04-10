@@ -35,15 +35,6 @@ class MediaRecord:
         return any(record.media_type == "episode" for record in media_record_list)
 
     @staticmethod
-    def all_have_titles(media_record_list: Iterable["MediaRecord"]) -> bool:
-        """
-        Returns True if every MediaRecord in the iterable has a title.
-        For episodes, 'title' refers to the series name... 'episode_title' refers to the name of the episode.
-        """
-
-        return all(record.title is not None for record in media_record_list)
-
-    @staticmethod
     def get_unique_titles(media_record_list: Iterable["MediaRecord"]) -> Set[str]:
         """
         Returns a set of unique titles from a media_record_list.

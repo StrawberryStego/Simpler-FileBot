@@ -59,19 +59,6 @@ def test_list_has_no_episodes():
     assert not MediaRecord.has_episodes(media_record_list)
 
 
-def test_list_records_all_have_titles():
-    media_record_list = [
-        MediaRecord("Tropic Thunder.mkv"),
-        MediaRecord("Star Wars - Episode 7.mkv"),
-        MediaRecord("Boston Legal (Episode 9) - Title")]
-    assert MediaRecord.all_have_titles(media_record_list)
-
-
-def test_list_records_do_not_all_have_titles():
-    media_record_list = [MediaRecord(""), MediaRecord(".mkv"), MediaRecord("()[].mkv")]
-    assert not MediaRecord.all_have_titles(media_record_list)
-
-
 def test_get_unique_titles_from_empty_record_list_retrieve_nothing():
     media_record_list = [MediaRecord(".mkv"), MediaRecord("")]
     assert len(MediaRecord.get_unique_titles(media_record_list)) == 0
