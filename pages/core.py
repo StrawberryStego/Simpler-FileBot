@@ -1,3 +1,5 @@
+from typing import List
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
     QDialog, QLineEdit, QBoxLayout
@@ -55,24 +57,25 @@ class CoreRenamerWidget(QWidget):
         Users can update any data mismatches and choose a DB to match from.
         """
 
-        def __init__(self, files_widget: DragAndDropFilesWidget, parent=None):
+        def __init__(self, files_widget: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
             super().__init__(parent)
 
             self.setWindowTitle("Match Options")
             self.files_widget = files_widget
+            self.output_box = output_box
 
             layout = QVBoxLayout(self)
 
             # Retrieve media records from files_widget.
-            media_records = []
+            self.media_records = []
             for index in range(self.files_widget.count()):
                 list_element = self.files_widget.item(index)
                 media_record = list_element.data(Qt.ItemDataRole.UserRole)
-                media_records.append(media_record)
+                self.media_records.append(media_record)
 
-            self.populate_layout(layout, media_records)
+            self.populate_layout(layout, self.media_records)
 
-        def populate_layout(self, layout: QBoxLayout, media_records: list):
+        def populate_layout(self, layout: QBoxLayout, media_records: List["MediaRecord"]):
             """Populates the layout with UI components based on MediaRecords."""
 
             # Contains a mix of movies and shows.
@@ -144,7 +147,7 @@ class CoreRenamerWidget(QWidget):
         """
 
         if self.left_box.count() > 0:
-            match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self.left_box)
+            match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self.left_box, self.right_box)
             match_options_widget.exec()
 
 
