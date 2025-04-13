@@ -40,35 +40,54 @@ def test_media_record_repr_function():
 
 
 def test_list_has_movies():
-    media_record_list = [MediaRecord("Interstellar (2014)"), MediaRecord("Iron Man (2008)")]
-    assert MediaRecord.has_movies(media_record_list)
+    media_records = [MediaRecord("Interstellar (2014)"), MediaRecord("Iron Man (2008)")]
+    assert MediaRecord.has_movies(media_records)
 
 
 def test_list_has_no_movies():
-    media_record_list = [MediaRecord("The.West.Wing.Ep01.mkv"), MediaRecord("The.Wire.Ep05.mkv")]
-    assert not MediaRecord.has_movies(media_record_list)
+    media_records = [MediaRecord("The.West.Wing.Ep01.mkv"), MediaRecord("The.Wire.Ep05.mkv")]
+    assert not MediaRecord.has_movies(media_records)
 
 
 def test_list_has_episodes():
-    media_record_list = [MediaRecord("Fairy Tail S01E05.mp4"), MediaRecord("S05E11 - Pilot Program")]
-    assert MediaRecord.has_episodes(media_record_list)
+    media_records = [MediaRecord("Fairy Tail S01E05.mp4"), MediaRecord("S05E11 - Pilot Program")]
+    assert MediaRecord.has_episodes(media_records)
 
 
 def test_list_has_no_episodes():
-    media_record_list = [MediaRecord("Kung Fu Panda.mkv"), MediaRecord("Thunderbolts*(2025)"), MediaRecord("")]
-    assert not MediaRecord.has_episodes(media_record_list)
+    media_records = [MediaRecord("Kung Fu Panda.mkv"), MediaRecord("Thunderbolts*(2025)"), MediaRecord("")]
+    assert not MediaRecord.has_episodes(media_records)
 
 
 def test_get_unique_titles_from_empty_record_list_retrieve_nothing():
-    media_record_list = [MediaRecord(".mkv"), MediaRecord("")]
-    assert len(MediaRecord.get_unique_titles(media_record_list)) == 0
+    media_records = [MediaRecord(".mkv"), MediaRecord("")]
+    assert len(MediaRecord.get_unique_titles(media_records)) == 0
 
 
 def test_get_unique_titles_from_record_list_with_one_show_retrieve_one_title():
-    media_record_list = [MediaRecord("Andor.S01E01.mkv"), MediaRecord("Andor.S01E05.mkv")]
-    assert len(MediaRecord.get_unique_titles(media_record_list)) == 1
+    media_records = [MediaRecord("Andor.S01E01.mkv"), MediaRecord("Andor.S01E05.mkv")]
+    assert len(MediaRecord.get_unique_titles(media_records)) == 1
 
 
 def test_get_unique_titles_from_record_list_with_two_shows_retrieve_two_titles():
-    media_record_list = [MediaRecord("The.West.Wing.S01E05.Title.mkv"), MediaRecord("Game.Of.Thrones.S02E05.mkv")]
-    assert len(MediaRecord.get_unique_titles(media_record_list)) == 2
+    media_records = [MediaRecord("The.West.Wing.S01E05.Title.mkv"), MediaRecord("Game.Of.Thrones.S02E05.mkv")]
+    assert len(MediaRecord.get_unique_titles(media_records)) == 2
+
+
+def test_is_tv_series_from_tv_series_list_returns_true():
+    media_records = [MediaRecord("The.Punisher.S01E01.mkv"), MediaRecord("The Punisher.S01E02.mkv")]
+    assert MediaRecord.is_tv_series(media_records)
+
+
+def test_is_tv_series_from_movies_list_returns_false():
+    media_records = [MediaRecord("Thunderbolts.mkv"), MediaRecord("Mickey 17.mkv")]
+    assert not MediaRecord.is_tv_series(media_records)
+
+
+def test_update_title_for_all_records_success():
+    media_records = [MediaRecord("The.West.Wing.S01E01.mkv"), MediaRecord("The.West.Wing.S01E02.mkv")]
+
+    MediaRecord.update_title_for_all_records("Some Other Name", media_records)
+
+    for media_record in media_records:
+        assert media_record.title == "Some Other Name"

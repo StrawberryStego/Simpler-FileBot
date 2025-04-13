@@ -16,9 +16,10 @@ class MediaRecord:
         self.metadata: dict = guessit(file_path)
 
         # Setting commonly used values, otherwise, get from metadata.
-        self.media_type = self.metadata.get("type")
-        self.title = self.metadata.get("title")
-        self.year = self.metadata.get("year")
+        self.media_type: str | None = self.metadata.get("type")
+        # self.title refers to the 'total' title. For movies, it's the movie title. For episodes, it's the series title.
+        self.title: str | None = self.metadata.get("title")
+        self.year: int | None = self.metadata.get("year")
 
     def __str__(self):
         return self.file_name
@@ -51,6 +52,4 @@ class MediaRecord:
     @staticmethod
     def update_title_for_all_records(title: str, media_record_list: Iterable["MediaRecord"]):
         for media_record in media_record_list:
-            print(title)
-            print(media_record.title)
             media_record.title = title
