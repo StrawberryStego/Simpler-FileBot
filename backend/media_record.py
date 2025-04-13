@@ -35,6 +35,10 @@ class MediaRecord:
         return any(record.media_type == "episode" for record in media_record_list)
 
     @staticmethod
+    def is_tv_series(media_record_list: Iterable["MediaRecord"]) -> bool:
+        return MediaRecord.has_episodes(media_record_list) and not MediaRecord.has_movies(media_record_list)
+
+    @staticmethod
     def get_unique_titles(media_record_list: Iterable["MediaRecord"]) -> Set[str]:
         """
         Returns a set of unique titles from a media_record_list.

@@ -1,7 +1,5 @@
-from typing import List
-
-from databases.database import Database
 from backend.media_record import MediaRecord
+from databases.database import Database
 
 
 class FileNameMatchDB(Database):
@@ -10,7 +8,7 @@ class FileNameMatchDB(Database):
     relying on MediaRecord's 'guessit' library for parsing. Can be volatile as guessit is prone to mistakes.
     """
 
-    def __init__(self, media_records: List["MediaRecord"], is_tv_series: bool = False):
+    def __init__(self, media_records: list[MediaRecord], is_tv_series: bool = False):
         super().__init__(media_records, is_tv_series)
 
     def retrieve_media_titles_from_db(self) -> list:
