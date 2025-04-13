@@ -1,10 +1,10 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import List
 
 from backend.media_record import MediaRecord
 
 
-class Database:
+class Database(ABC):
     """Abstract class to interact with a database and return data."""
 
     def __init__(self, media_records: List["MediaRecord"], is_tv_series: bool = False):
