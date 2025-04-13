@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget_container)
 
         # Additional window setup.
-        self.setWindowTitle("Simpler FileBot v0.1")
+        self.setWindowTitle("Simpler FileBot v0.3")
         self.setMinimumSize(600, 200)
 
 
