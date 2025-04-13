@@ -142,13 +142,14 @@ class CoreRenamerWidget(QWidget):
 
             return widget
 
-        @staticmethod
-        def match_records_and_populate_output_box(database, right_box: QListWidget):
+        def match_records_and_populate_output_box(self, database, right_box: QListWidget):
             matched_media_titles = match_titles_using_db_and_format(database)
             for title in matched_media_titles:
                 list_item = QListWidgetItem()
                 list_item.setText(title)
                 right_box.addItem(list_item)
+
+            self.close()
 
     @Slot()
     def open_match_options_widget(self):
