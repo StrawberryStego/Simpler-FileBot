@@ -1,5 +1,3 @@
-from typing import List
-
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
     QDialog, QLineEdit, QBoxLayout, QListWidgetItem
@@ -7,6 +5,7 @@ from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout
 from backend.core_backend import match_records
 from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.media_record import MediaRecord
+from databases.file_name_match_db import FileNameMatchDB
 
 
 class CoreRenamerWidget(QWidget):
@@ -74,9 +73,11 @@ class CoreRenamerWidget(QWidget):
                 media_record = list_element.data(Qt.ItemDataRole.UserRole)
                 self.media_records.append(media_record)
 
+            self.is_tv_series = MediaRecord.is_tv_series(self.media_records)
+
             self.populate_layout(layout, self.media_records)
 
-        def populate_layout(self, layout: QBoxLayout, media_records: List["MediaRecord"]):
+        def populate_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
             """Populates the layout with UI components based on MediaRecords."""
 
             # Contains a mix of movies and shows.
@@ -121,8 +122,7 @@ class CoreRenamerWidget(QWidget):
                 layout.addWidget(label)
                 layout.addWidget(database_buttons_widget)
 
-        @staticmethod
-        def create_database_selection_layout() -> QWidget:
+        def create_database_selection_layout(self) -> QWidget:
             widget = QWidget()
 
             layout = QHBoxLayout(widget)
@@ -131,18 +131,20 @@ class CoreRenamerWidget(QWidget):
             the_tv_db_button = QPushButton("TheTVDB")
             the_movie_db_button = QPushButton("TheMovieDB")
             tv_maze_db_button = QPushButton("TVMaze")
-            guessit_button = QPushButton("Attempt to match by filename only")
+            file_name_match_db_button = QPushButton("Attempt to match by filename only")
+            file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
+                FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
             layout.addWidget(ani_db_button)
             layout.addWidget(the_tv_db_button)
             layout.addWidget(the_movie_db_button)
             layout.addWidget(tv_maze_db_button)
-            layout.addWidget(guessit_button)
+            layout.addWidget(file_name_match_db_button)
 
             return widget
 
         @staticmethod
-        def match_records_and_populate_output_box(database, media_records: List["MediaRecord"], right_box: QListWidget):
-            matched_media_records = match_records(database, media_records)
+        def match_records_and_populate_output_box(database, right_box: QListWidget):
+            matched_media_records = match_records(database)
             for media_record in matched_media_records:
                 list_item = QListWidgetItem(media_record.file_name)
                 list_item.setData(Qt.ItemDataRole.UserRole, media_record)
