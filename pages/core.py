@@ -1,8 +1,11 @@
+import os.path
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
     QDialog, QLineEdit, QBoxLayout, QListWidgetItem
 
-from backend.core_backend import match_titles_using_db_and_format
+from backend.core_backend import (match_titles_using_db_and_format, get_invalid_file_names_and_fixes,
+                                  perform_file_renaming)
 from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.media_record import MediaRecord
 from databases.file_name_match_db import FileNameMatchDB
@@ -35,9 +38,6 @@ class CoreRenamerWidget(QWidget):
         buttons_layout.addWidget(rename_button)
         buttons_layout.addWidget(undo_button)
 
-        # Opens a QDialog widget for user option selection when match button is clicked.
-        match_button.clicked.connect(self.open_match_options_widget)
-
         # Right output box layout: Title + Box.
         right_box_layout = QVBoxLayout()
         self.right_box = QListWidget()
@@ -45,6 +45,11 @@ class CoreRenamerWidget(QWidget):
         right_box_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         right_box_layout.addWidget(right_box_label)
         right_box_layout.addWidget(self.right_box)
+
+        # Opens a QDialog widget for user option selection when match button is clicked.
+        match_button.clicked.connect(self.open_match_options_widget)
+        # Rename files once files have been matched using a database and rename button has been clicked.
+        rename_button.clicked.connect(self.rename_files_if_allowed)
 
         # Combine the core renamer components and add to CoreRenamerWidget.
         files_ui_layout.addLayout(left_box_layout)
@@ -164,6 +169,46 @@ class CoreRenamerWidget(QWidget):
         if self.left_box.count() > 0:
             match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self.left_box, self.right_box)
             match_options_widget.exec()
+
+    @Slot()
+    def rename_files_if_allowed(self):
+        """Rename files from input box to names in output box if they're valid."""
+        if not self.is_rename_allowed():
+            return
+
+        output_file_names: list[str] = []
+        for i in range(self.right_box.count()):
+            output_file_names.append(self.right_box.item(i).text())
+
+        invalid_file_names_and_fixes = get_invalid_file_names_and_fixes(output_file_names)
+
+        if len(invalid_file_names_and_fixes) > 0:
+            # Implement confirmation here.
+            print()
+
+        self.rename_files()
+
+    def is_rename_allowed(self) -> bool:
+        """Each record in the input box must have a matching title to rename to."""
+        return self.left_box.count() == self.right_box.count()
+
+    def rename_files(self):
+        old_file_names = []
+        new_file_names = []
+
+        for i in range(self.left_box.count()):
+            # Retrieve the full file path from the left box.
+            full_old_file_path = self.left_box.item(i).data(Qt.ItemDataRole.UserRole).full_file_path
+            old_file_names.append(full_old_file_path)
+
+            # Retrieve the 'file name' from the right box (Does not contain the folder, just the file name).
+            output_file_name = self.right_box.item(i).text()
+            # Prefix the folder to the output file name.
+            full_new_path = os.path.join(os.path.dirname(full_old_file_path), output_file_name)
+
+            new_file_names.append(full_new_path)
+
+        perform_file_renaming(old_file_names, new_file_names)
 
 
 class CorePage(QMainWindow):
