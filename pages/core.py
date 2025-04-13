@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
     QDialog, QLineEdit, QBoxLayout, QListWidgetItem
 
-from backend.core_backend import match_records
+from backend.core_backend import match_titles_using_db_and_format
 from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.media_record import MediaRecord
 from databases.file_name_match_db import FileNameMatchDB
@@ -144,10 +144,10 @@ class CoreRenamerWidget(QWidget):
 
         @staticmethod
         def match_records_and_populate_output_box(database, right_box: QListWidget):
-            matched_media_records = match_records(database)
-            for media_record in matched_media_records:
-                list_item = QListWidgetItem(media_record.file_name)
-                list_item.setData(Qt.ItemDataRole.UserRole, media_record)
+            matched_media_titles = match_titles_using_db_and_format(database)
+            for title in matched_media_titles:
+                list_item = QListWidgetItem()
+                list_item.setText(title)
                 right_box.addItem(list_item)
 
     @Slot()
