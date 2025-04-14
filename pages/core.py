@@ -1,9 +1,9 @@
 import os.path
 
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt, Slot, QTimer
+from PySide6.QtGui import QColor, QCursor
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QDialog, QLineEdit, QBoxLayout, QListWidgetItem
+    QDialog, QLineEdit, QBoxLayout, QListWidgetItem, QApplication
 
 from backend.core_backend import (match_titles_using_db_and_format, get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
@@ -184,6 +184,8 @@ class CoreRenamerWidget(QWidget):
         if not self.is_rename_allowed():
             return
 
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+
         output_file_names: list[str] = []
         for i in range(self.right_box.count()):
             output_file_names.append(self.right_box.item(i).text())
@@ -192,9 +194,10 @@ class CoreRenamerWidget(QWidget):
 
         if len(invalid_file_names_and_fixes) > 0:
             # Implement confirmation here.
+            QApplication.restoreOverrideCursor()
             print()
 
-        self.rename_files()
+        QTimer.singleShot(1000, self.rename_files)
 
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
@@ -217,6 +220,8 @@ class CoreRenamerWidget(QWidget):
             new_file_names.append(full_new_path)
 
         perform_file_renaming(old_file_names, new_file_names)
+
+        QApplication.restoreOverrideCursor()
 
 
 class CorePage(QMainWindow):
