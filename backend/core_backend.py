@@ -1,9 +1,10 @@
 import os
 
 from backend.media_record import MediaRecord
+from databases.database import Database
 
 
-def match_titles_using_db_and_format(database) -> list[str]:
+def match_titles_using_db_and_format(database: Database) -> list[str]:
     formatted_matched_titles = []
     media_records: list[MediaRecord] = database.media_records
 

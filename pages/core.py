@@ -8,6 +8,7 @@ from backend.core_backend import (match_titles_using_db_and_format, get_invalid_
                                   perform_file_renaming)
 from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.media_record import MediaRecord
+from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
 
 
@@ -147,7 +148,7 @@ class CoreRenamerWidget(QWidget):
 
             return widget
 
-        def match_records_and_populate_output_box(self, database, right_box: QListWidget):
+        def match_records_and_populate_output_box(self, database: Database, right_box: QListWidget):
             # Clear output box before populating it.
             right_box.clear()
 
