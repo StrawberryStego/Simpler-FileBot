@@ -13,8 +13,8 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
 
     for i, item in enumerate(media_records):
         media_record = item
-        media_title = matched_titles[i]
-        media_year = matched_years[i]
+        media_title = "{None}" if matched_titles[i] is None else matched_titles[i]
+        media_year = "{None}" if matched_years[i] is None else matched_years[i]
 
         if database.is_tv_series:
             season_number = media_record.metadata.get("season")

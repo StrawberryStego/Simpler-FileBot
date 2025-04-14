@@ -1,6 +1,7 @@
 import os.path
 
 from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
     QDialog, QLineEdit, QBoxLayout, QListWidgetItem
 
@@ -155,6 +156,12 @@ class CoreRenamerWidget(QWidget):
             matched_media_titles = match_titles_using_db_and_format(database)
             for title in matched_media_titles:
                 list_item = QListWidgetItem()
+
+                # If any element (title, year, etc.) could not be found, highlight (light-red) the bad matched name.
+                if "{None}" in title:
+                    title = title.replace("{None}", "")
+                    list_item.setBackground(QColor(255, 80, 80))
+
                 list_item.setText(title)
                 right_box.addItem(list_item)
 
