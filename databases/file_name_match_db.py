@@ -11,7 +11,7 @@ class FileNameMatchDB(Database):
     def __init__(self, media_records: list[MediaRecord], is_tv_series: bool = False):
         super().__init__(media_records, is_tv_series)
 
-    def retrieve_media_titles_from_db(self) -> list:
+    def retrieve_media_titles_from_db(self) -> list[str | None]:
         media_titles = []
 
         for media_record in self.media_records:
@@ -23,7 +23,7 @@ class FileNameMatchDB(Database):
 
         return media_titles
 
-    def retrieve_media_years_from_db(self) -> list:
+    def retrieve_media_years_from_db(self) -> list[int | None]:
         media_years = []
 
         for media_record in self.media_records:
