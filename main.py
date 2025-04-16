@@ -3,6 +3,7 @@ import sys
 
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
+
 from pages.core import CorePage
 from pages.formats import FormatsPage
 from pages.preferences import PreferencesPage
@@ -40,8 +41,18 @@ class MainWindow(QMainWindow):
         central_widget_container.setLayout(central_layout)
         self.setCentralWidget(central_widget_container)
 
+        # Set styles for the page-switching menu.
+        self.menu.setStyleSheet("""
+        QListWidget {
+            font-size: 20pt;
+        }
+        QListWidget::item {
+            margin: 1em;
+        }
+        """)
+
         # Additional window setup.
-        self.setWindowTitle("Simpler FileBot v0.3")
+        self.setWindowTitle("Simpler FileBot v0.5")
         self.setMinimumSize(600, 200)
 
 
