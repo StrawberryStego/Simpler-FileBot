@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+import os
 
 
 class PreferencesPage(QWidget):
@@ -10,5 +11,7 @@ class PreferencesPage(QWidget):
         preferences_page_layout = QVBoxLayout(self)
 
         title = QLabel("Welcome to the Preferences Page!")
+        
+        location = os.method + "/Simpler Filebot/settings.json"
 
         preferences_page_layout.addWidget(title)
