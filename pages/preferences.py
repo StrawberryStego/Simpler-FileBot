@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 
 
 class PreferencesPage(QWidget):
-    """Preferences page for miscellaneous options/settings."""
+    """Settings page for miscellaneous options/settings."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
