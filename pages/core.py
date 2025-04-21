@@ -33,12 +33,16 @@ class CoreRenamerWidget(QWidget):
 
         # Utility Buttons contained within a VBox.
         buttons_layout = QVBoxLayout()
-        match_button = QPushButton("Match")
-        rename_button = QPushButton("Rename")
-        undo_button = QPushButton("Undo")
-        buttons_layout.addWidget(match_button)
-        buttons_layout.addWidget(rename_button)
-        buttons_layout.addWidget(undo_button)
+        self.match_button = QPushButton("Match")
+        self.rename_button = QPushButton("Rename")
+        self.undo_button = QPushButton("Undo")
+        buttons_layout.addWidget(self.match_button)
+        buttons_layout.addWidget(self.rename_button)
+        buttons_layout.addWidget(self.undo_button)
+
+        # Disable rename and undo buttons until files are matched/renamed.
+        self.rename_button.setEnabled(False)
+        self.undo_button.setEnabled(False)
 
         # Right output box layout: Title + Box.
         right_box_layout = QVBoxLayout()
@@ -53,9 +57,9 @@ class CoreRenamerWidget(QWidget):
         self.right_box.currentRowChanged.connect(self.left_box.setCurrentRow)
 
         # Opens a QDialog widget for user option selection when match button is clicked.
-        match_button.clicked.connect(self.open_match_options_widget)
+        self.match_button.clicked.connect(self.open_match_options_widget)
         # Rename files once files have been matched using a database and rename button has been clicked.
-        rename_button.clicked.connect(self.rename_files_if_allowed)
+        self.rename_button.clicked.connect(self.rename_files_if_allowed)
 
         # Combine the core renamer components and add to CoreRenamerWidget.
         files_ui_layout.addLayout(left_box_layout)
@@ -185,6 +189,9 @@ class CoreRenamerWidget(QWidget):
             match_options_widget = CoreRenamerWidget.MatchOptionsWidget(self.left_box, self.right_box)
             match_options_widget.exec()
 
+            # Enable the rename button once files are matched.
+            self.rename_button.setEnabled(True)
+
     @Slot()
     def rename_files_if_allowed(self):
         """Rename files from input box to names in output box if they're valid."""
@@ -207,6 +214,10 @@ class CoreRenamerWidget(QWidget):
         QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
 
         QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
+
+        # Disable the rename button and enable the undo button once files are renamed.
+        self.rename_button.setEnabled(False)
+        self.undo_button.setEnabled(True)
 
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
