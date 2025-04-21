@@ -1,5 +1,5 @@
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTabWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTabWidget, QLabel
 
 
 class FormatsPage(QWidget):
@@ -27,6 +27,15 @@ class FormatsPage(QWidget):
         self.update_button = QPushButton("Update")
         movie_tab_layout.addWidget(self.update_button)
 
+        # Syntax Label
+        self.syntax_label = QLabel("{movie_name} = Title\n"
+                                   "{year} = Year\n"
+                                   "\nExamples:\n"
+                                   "{movie_name} ({year}) \n"
+                                   "\tMovieName.2020.ENGLISH.720p.WEBRip.800MB.x264-GalaxyRG.mkv"
+                                   " = MovieName (2020)")
+        movie_tab_layout.addWidget(self.syntax_label)
+
         movie_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
         tab_bar.addTab(movie_tab, "Movies")
 
@@ -42,6 +51,18 @@ class FormatsPage(QWidget):
         # Update button
         self.update_button = QPushButton("Update")
         episode_tab_layout.addWidget(self.update_button)
+
+        # Syntax Label
+        self.syntax_label = QLabel("{series_name} = Title\n"
+                                   "{season_number} = Season Number\n"
+                                   "{episode_number} = Episode Number\n"
+                                   "{episode_title} = Episode Title\n"
+                                   "{year} = Year\n"
+                                   "\nExamples:\n"
+                                   "{{series_name} - {season_number}{episode_number} - {episode_title}}\n"
+                                   "\tChernobyl.S01E01.1.23.45.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv"
+                                   " = Chernobyl - S01E01 - 1.23.45.mkv\n")
+        episode_tab_layout.addWidget(self.syntax_label)
 
         episode_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
         tab_bar.addTab(episode_tab, "TV Episodes")
