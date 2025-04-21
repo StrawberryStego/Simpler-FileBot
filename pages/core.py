@@ -195,9 +195,9 @@ class CoreRenamerWidget(QWidget):
         if len(invalid_file_names_and_fixes) > 0:
             # Implement confirmation here.
             QApplication.restoreOverrideCursor()
-            print()
 
-        QTimer.singleShot(1000, self.rename_files)
+        self.rename_files()
+        QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
 
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
@@ -220,8 +220,6 @@ class CoreRenamerWidget(QWidget):
             new_file_names.append(full_new_path)
 
         perform_file_renaming(old_file_names, new_file_names)
-
-        QApplication.restoreOverrideCursor()
 
 
 class CorePage(QMainWindow):
