@@ -242,9 +242,12 @@ class CoreToolBar(QWidget):
 
         browse_files_button = QPushButton("  📁 Browse Files . . .  ")
         browse_files_button.clicked.connect(self.open_files)
+        delete_file_button = QPushButton("  ❌ Delete File  ")
+        delete_file_button.clicked.connect(self.delete_file)
 
         core_tool_bar_layout.addWidget(browse_files_button)
         core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
+        core_tool_bar_layout.addWidget(delete_file_button)
         # Adding a stretch at the end, left-aligns all buttons and sizes them correctly.
         core_tool_bar_layout.addStretch()
 
@@ -253,6 +256,18 @@ class CoreToolBar(QWidget):
         file_paths, _ = QFileDialog.getOpenFileNames(None, "Select Media Files")
         for file_path in file_paths:
             self.input_box.add_file_to_list(file_path)
+
+    @Slot()
+    def delete_file(self):
+        row = self.input_box.currentRow()
+
+        if row != -1:
+            removed_item = self.input_box.takeItem(row)
+            del removed_item
+
+        if row < self.output_box.count():
+            removed_item = self.output_box.takeItem(row)
+            del removed_item
 
 
 class CorePage(QMainWindow):
