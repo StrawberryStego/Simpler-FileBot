@@ -82,9 +82,9 @@ class CoreRenamerWidget(QWidget):
 
             self.is_tv_series = MediaRecord.is_tv_series(self.media_records)
 
-            self.populate_layout(layout, self.media_records)
+            self.populate_match_options_layout(layout, self.media_records)
 
-        def populate_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
+        def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
             """Populates the layout with UI components based on MediaRecords."""
 
             # Contains a mix of movies and shows.
