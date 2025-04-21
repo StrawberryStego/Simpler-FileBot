@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtGui import QFont, QIntValidator, Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTabWidget
 
 
 class FormatsPage(QWidget):
@@ -9,6 +10,17 @@ class FormatsPage(QWidget):
 
         formats_page_layout = QVBoxLayout(self)
 
-        title = QLabel("Welcome to the Formats Page!")
+        # Tab bar for Movies, TV Episodes
+        tab_bar = QTabWidget()
+        formats_page_layout.addWidget(tab_bar)
 
-        formats_page_layout.addWidget(title)
+        # Movie Tab
+        movie_tab = QWidget()
+        tab_bar.addTab(movie_tab, "Movies")
+
+        episode_tab = QWidget()
+        tab_bar.addTab(episode_tab, "TV Episodes")
+
+
+
+
