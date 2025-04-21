@@ -1,3 +1,6 @@
 /venv/
 .idea
-/__pycache__/
+/backend/__pycache__/
+/databases/__pycache__/
+/pages/__pycache__/
+/tests/__pycache__/
