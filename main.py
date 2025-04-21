@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
 
         # Widget (List) that displays clickable tabs that allows for switching pages.
         self.menu = QListWidget()
-        self.menu.addItems(["Rename", "Formats", "Settings"])
+        self.menu.addItems(["↔️ Rename", "🟰 Formats", "⚙️ Settings"])
         # Max & 150px is needed so the menu bar does not become miniscule on small-dpi monitors.
         self.menu.setMinimumWidth(max(150, int(screen_size_info.width() * MINIMUM_MENU_BAR_WIDTH_SCALING)))
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
