@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(CorePage())
         self.pages.addWidget(FormatsPage())
         self.pages.addWidget(PreferencesPage())
-        self.pages.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.pages.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         central_layout.addWidget(self.pages)
 
         # Connects signal for when the user clicks on a menu tab to setCurrentIndex()'s slot to change pages.
