@@ -2,11 +2,16 @@ import os
 import sys
 
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 
 from pages.core import CorePage
 from pages.formats import FormatsPage
 from pages.preferences import PreferencesPage
+
+# Percentage of the screen's dimensions that the application should scale to.
+DEFAULT_APP_WIDTH_SCALING = 0.70
+DEFAULT_APP_HEIGHT_SCALING = 0.60
 
 
 class MainWindow(QMainWindow):
@@ -53,7 +58,13 @@ class MainWindow(QMainWindow):
 
         # Additional window setup.
         self.setWindowTitle("Simpler FileBot v0.5")
-        self.setMinimumSize(600, 200)
+
+        screen_size_info = QGuiApplication.primaryScreen().availableGeometry()
+
+        # Set the main application to start at a percentage of the screen's size.
+        default_screen_width = int(screen_size_info.width() * DEFAULT_APP_WIDTH_SCALING)
+        default_screen_height = int(screen_size_info.height() * DEFAULT_APP_HEIGHT_SCALING)
+        self.resize(default_screen_width, default_screen_height)
 
 
 if __name__ == "__main__":
