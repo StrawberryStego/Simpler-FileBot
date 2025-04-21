@@ -31,8 +31,7 @@ class MainWindow(QMainWindow):
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         central_layout.addWidget(self.menu)
 
-        # QStackedWidget stores different pages/widgets that can be switched to/from.
-        # See: https://doc.qt.io/qt-6/qstackedwidget.html.
+        # QStackedWidget that stores different pages/widgets that can be switched to/from.
         self.pages = QStackedWidget()
         self.pages.addWidget(CorePage())
         self.pages.addWidget(FormatsPage())
