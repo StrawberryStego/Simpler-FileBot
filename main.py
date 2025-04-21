@@ -9,9 +9,10 @@ from pages.core import CorePage
 from pages.formats import FormatsPage
 from pages.preferences import PreferencesPage
 
-# Percentage of the screen's dimensions that the application should scale to.
+# Percentage of the screen's dimensions that various widget sizes should adhere to.
 DEFAULT_APP_WIDTH_SCALING = 0.70
 DEFAULT_APP_HEIGHT_SCALING = 0.60
+MINIMUM_MENU_BAR_WIDTH_SCALING = 0.08
 
 
 class MainWindow(QMainWindow):
@@ -19,13 +20,15 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
         central_layout = QHBoxLayout()
+        screen_size_info = QGuiApplication.primaryScreen().availableGeometry()
 
         # Widget (List) that displays clickable tabs that allows for switching pages.
         self.menu = QListWidget()
         self.menu.addItems(["Rename", "Formats", "Settings"])
-        self.menu.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        # Max & 150px is needed so the menu bar does not become miniscule on small-dpi monitors.
+        self.menu.setMinimumWidth(max(150, int(screen_size_info.width() * MINIMUM_MENU_BAR_WIDTH_SCALING)))
+        self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         central_layout.addWidget(self.menu)
 
         # QStackedWidget stores different pages/widgets that can be switched to/from.
@@ -58,8 +61,6 @@ class MainWindow(QMainWindow):
 
         # Additional window setup.
         self.setWindowTitle("Simpler FileBot v0.5")
-
-        screen_size_info = QGuiApplication.primaryScreen().availableGeometry()
 
         # Set the main application to start at a percentage of the screen's size.
         default_screen_width = int(screen_size_info.width() * DEFAULT_APP_WIDTH_SCALING)
