@@ -3,7 +3,7 @@ import os.path
 from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QColor, QCursor
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QDialog, QLineEdit, QBoxLayout, QListWidgetItem, QApplication
+    QDialog, QLineEdit, QBoxLayout, QListWidgetItem, QApplication, QFileDialog
 
 from backend.core_backend import (match_titles_using_db_and_format, get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
@@ -225,15 +225,43 @@ class CoreRenamerWidget(QWidget):
         perform_file_renaming(old_file_names, new_file_names)
 
 
+class CoreToolBar(QWidget):
+    """Contains the toolbar helper elements (buttons) residing below CoreRenamerWidget."""
+    BUTTON_SPACING: int = 10
+
+    def __init__(self, input_box: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
+        super().__init__(parent)
+        self.input_box = input_box
+        self.output_box = output_box
+
+        core_tool_bar_layout = QHBoxLayout(self)
+
+        browse_files_button = QPushButton("  📁 Browse Files . . .  ")
+        browse_files_button.clicked.connect(self.open_files)
+
+        core_tool_bar_layout.addWidget(browse_files_button)
+        core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
+        # Adding a stretch at the end, left-aligns all buttons and sizes them correctly.
+        core_tool_bar_layout.addStretch()
+
+    @Slot()
+    def open_files(self):
+        file_paths, _ = QFileDialog.getOpenFileNames(None, "Select Media Files")
+        for file_path in file_paths:
+            self.input_box.add_file_to_list(file_path)
+
+
 class CorePage(QMainWindow):
     """Main 'Rename' page for Simpler FileBot which houses the key functional components."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.renamer_widget = CoreRenamerWidget()
+        renamer_widget = CoreRenamerWidget()
+        toolbar_widget = CoreToolBar(renamer_widget.left_box, renamer_widget.right_box)
 
         # Combine all CorePage components into one QWidget().
         central_widget = QWidget()
         central_widget_layout = QVBoxLayout(central_widget)
-        central_widget_layout.addWidget(self.renamer_widget)
+        central_widget_layout.addWidget(renamer_widget)
+        central_widget_layout.addWidget(toolbar_widget)
         self.setCentralWidget(central_widget)
