@@ -231,7 +231,7 @@ class CoreRenamerWidget(QWidget):
 
 class CoreToolBar(QWidget):
     """Contains the toolbar helper elements (buttons) residing below CoreRenamerWidget."""
-    BUTTON_SPACING: int = 10
+    BUTTON_SPACING: int = 15
 
     def __init__(self, input_box: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
         super().__init__(parent)
@@ -240,14 +240,18 @@ class CoreToolBar(QWidget):
 
         core_tool_bar_layout = QHBoxLayout(self)
 
-        browse_files_button = QPushButton("  📁 Browse Files . . .  ")
+        browse_files_button = QPushButton(" 📁 Browse Files . . .  ")
         browse_files_button.clicked.connect(self.open_files)
-        delete_file_button = QPushButton("  ❌ Delete File  ")
-        delete_file_button.clicked.connect(self.delete_file)
+        remove_file_button = QPushButton(" 🚫 Remove File  ")
+        remove_file_button.clicked.connect(self.remove_file)
+        remove_all_files_button = QPushButton(" ❌ Remove All Files  ")
+        remove_all_files_button.clicked.connect(self.remove_all_files)
 
         core_tool_bar_layout.addWidget(browse_files_button)
         core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
-        core_tool_bar_layout.addWidget(delete_file_button)
+        core_tool_bar_layout.addWidget(remove_file_button)
+        core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
+        core_tool_bar_layout.addWidget(remove_all_files_button)
         # Adding a stretch at the end, left-aligns all buttons and sizes them correctly.
         core_tool_bar_layout.addStretch()
 
@@ -258,7 +262,7 @@ class CoreToolBar(QWidget):
             self.input_box.add_file_to_list(file_path)
 
     @Slot()
-    def delete_file(self):
+    def remove_file(self):
         row = self.input_box.currentRow()
 
         if row != -1:
@@ -268,6 +272,11 @@ class CoreToolBar(QWidget):
         if row < self.output_box.count():
             removed_item = self.output_box.takeItem(row)
             del removed_item
+
+    @Slot()
+    def remove_all_files(self):
+        self.input_box.clear()
+        self.output_box.clear()
 
 
 class CorePage(QMainWindow):
