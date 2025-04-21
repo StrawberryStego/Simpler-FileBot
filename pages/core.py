@@ -19,6 +19,10 @@ class CoreRenamerWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # Used to undo a rename function. Should be cleared on a new match or an undo operation.
+        # (renamed_total_file_path: str, old_total_file_path: str)
+        self.last_renames: list[tuple[str, str]] = []
+
         # Contains file input/output boxes and button components (Rename, Undo, etc.).
         files_ui_layout = QHBoxLayout(self)
 
@@ -60,6 +64,8 @@ class CoreRenamerWidget(QWidget):
         self.match_button.clicked.connect(self.open_match_options_widget)
         # Rename files once files have been matched using a database and rename button has been clicked.
         self.rename_button.clicked.connect(self.rename_files_if_allowed)
+        # Undo a rename operation using cached filenames from self.last_rename on button click.
+        self.undo_button.clicked.connect(self.undo_last_rename_operation)
 
         # Combine the core renamer components and add to CoreRenamerWidget.
         files_ui_layout.addLayout(left_box_layout)
@@ -191,6 +197,8 @@ class CoreRenamerWidget(QWidget):
 
             # Enable the rename button once files are matched.
             self.rename_button.setEnabled(True)
+            # Remove any old cached last_renamed files from previous renames.
+            self.last_renames.clear()
 
     @Slot()
     def rename_files_if_allowed(self):
@@ -219,6 +227,17 @@ class CoreRenamerWidget(QWidget):
         self.rename_button.setEnabled(False)
         self.undo_button.setEnabled(True)
 
+    @Slot()
+    def undo_last_rename_operation(self):
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+
+        renamed_file_names, old_file_names = map(list, zip(*self.last_renames))
+        perform_file_renaming(renamed_file_names, old_file_names)
+        self.last_renames.clear()
+
+        QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
+        self.undo_button.setEnabled(False)
+
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
         return self.left_box.count() == self.right_box.count()
@@ -240,6 +259,13 @@ class CoreRenamerWidget(QWidget):
             new_file_names.append(full_new_path)
 
         perform_file_renaming(old_file_names, new_file_names)
+
+        # Store filenames for undo operation.
+        if len(old_file_names) != len(new_file_names):
+            print(f"Fatal renaming error. Had {len(old_file_names)} but renamed {len(new_file_names)}. ?")
+            return
+
+        self.last_renames = list(zip(new_file_names, old_file_names))
 
 
 class CoreToolBar(QWidget):
