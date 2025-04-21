@@ -206,6 +206,8 @@ class CoreRenamerWidget(QWidget):
         self.rename_files()
         QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
 
+        QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
+
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
         return self.left_box.count() == self.right_box.count()
