@@ -1,5 +1,5 @@
-from PySide6.QtGui import QFont, QIntValidator, Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTabWidget
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTabWidget
 
 
 class FormatsPage(QWidget):
@@ -16,11 +16,32 @@ class FormatsPage(QWidget):
 
         # Movie Tab
         movie_tab = QWidget()
+        movie_tab_layout = QVBoxLayout(movie_tab)
+
+        # Textbox
+        self.line_edit = QLineEdit()
+        self.line_edit.setPlaceholderText("Enter format here")
+        movie_tab_layout.addWidget(self.line_edit)
+
+        # Update button
+        self.update_button = QPushButton("Update")
+        movie_tab_layout.addWidget(self.update_button)
+
+        movie_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
         tab_bar.addTab(movie_tab, "Movies")
 
+        # Episode Tab
         episode_tab = QWidget()
+        episode_tab_layout = QVBoxLayout(episode_tab)
+
+        # Textbox
+        self.line_edit = QLineEdit()
+        self.line_edit.setPlaceholderText("Enter format here")
+        episode_tab_layout.addWidget(self.line_edit)
+
+        # Update button
+        self.update_button = QPushButton("Update")
+        episode_tab_layout.addWidget(self.update_button)
+
+        episode_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
         tab_bar.addTab(episode_tab, "TV Episodes")
-
-
-
-
