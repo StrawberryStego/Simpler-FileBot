@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
 
         # Widget (List) that displays clickable tabs that allows for switching pages.
         self.menu = QListWidget()
-        self.menu.addItems(["↔️ Rename", "🟰 Formats", "⚙️ Settings"])
+        self.menu.addItems(["🖋 Rename", "🟰 Formats", "⚙️ Settings"])
         central_layout.addWidget(self.menu)
 
         # QStackedWidget that stores different pages/widgets that can be switched to/from.
