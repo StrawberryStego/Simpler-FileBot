@@ -46,10 +46,10 @@ def get_invalid_file_names_and_fixes(file_names: list[str]) -> dict[str, str]:
 
 
 def perform_file_renaming(old_file_names: list[str], new_file_names: list[str]):
-    for i, old_file_name in enumerate(old_file_names):
-        new_file_name = new_file_names[i]
+    if len(old_file_names) != len(new_file_names):
+        raise ValueError(f"Old_file_names[] has {len(old_file_names)} files but,"
+                         f"new_file_names has {len(new_file_names)} files...?")
 
-        try:
-            os.rename(old_file_name, new_file_name)
-        except OSError as e:
-            print(f"Error renaming {old_file_name} to {new_file_name}: {e}")
+    for old_file_name, new_file_name in zip(old_file_names, new_file_names):
+        # Raises an OSError if os.rename() fails.
+        os.rename(old_file_name, new_file_name)
