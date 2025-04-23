@@ -12,7 +12,6 @@ from pages.preferences import PreferencesPage
 # Percentage of the screen's dimensions that various widget sizes should adhere to.
 DEFAULT_APP_WIDTH_SCALING = 0.70
 DEFAULT_APP_HEIGHT_SCALING = 0.60
-MINIMUM_MENU_BAR_WIDTH_SCALING = 0.08
 
 
 class MainWindow(QMainWindow):
@@ -26,9 +25,6 @@ class MainWindow(QMainWindow):
         # Widget (List) that displays clickable tabs that allows for switching pages.
         self.menu = QListWidget()
         self.menu.addItems(["↔️ Rename", "🟰 Formats", "⚙️ Settings"])
-        # Max & 150px is needed so the menu bar does not become miniscule on small-dpi monitors.
-        self.menu.setMinimumWidth(max(150, int(screen_size_info.width() * MINIMUM_MENU_BAR_WIDTH_SCALING)))
-        self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         central_layout.addWidget(self.menu)
 
         # QStackedWidget that stores different pages/widgets that can be switched to/from.
@@ -57,6 +53,10 @@ class MainWindow(QMainWindow):
             margin: 1em;
         }
         """)
+        # Retrieve the max width of the widest row in self.menu. Done after the stylesheet is set!
+        max_width_menu_item = self.menu.sizeHintForColumn(0)
+        self.menu.setMinimumWidth(max_width_menu_item + 15)  # Add extra padding on a menu item for QoL.
+        self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         # Additional window setup.
         self.setWindowTitle("Simpler FileBot v0.5")
