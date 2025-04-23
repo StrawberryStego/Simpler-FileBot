@@ -1,8 +1,17 @@
-/* Applies to QListWidgets whose objectName == "menu". */
 QListWidget#menu {
-    font-size: 20pt;
+    font-size: 18pt;
 }
 
 QListWidget#menu::item {
     margin: 1em;
+}
+
+#core QListWidget {
+    /* Set the min height of the input/output box to roughly 20 lines of file names ('em' solely counts text size). */
+    min-height: 20em;
+}
+
+#core QPushButton {
+    font-size: 12pt;
+    min-height: 2em;
 }

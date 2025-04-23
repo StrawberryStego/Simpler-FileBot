@@ -18,6 +18,7 @@ class CoreRenamerWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("core")
 
         # Used to undo a rename function. Should be cleared on a new match or an undo operation.
         # (renamed_total_file_path: str, old_total_file_path: str)
@@ -37,9 +38,9 @@ class CoreRenamerWidget(QWidget):
 
         # Utility Buttons contained within a VBox.
         buttons_layout = QVBoxLayout()
-        self.match_button = QPushButton("Match")
-        self.rename_button = QPushButton("Rename")
-        self.undo_button = QPushButton("Undo")
+        self.match_button = QPushButton("Match\n🗃")
+        self.rename_button = QPushButton("Rename\n🖋")
+        self.undo_button = QPushButton("Undo\n↩")
         buttons_layout.addWidget(self.match_button)
         buttons_layout.addWidget(self.rename_button)
         buttons_layout.addWidget(self.undo_button)
