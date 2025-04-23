@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QGuiApplication
@@ -44,18 +45,11 @@ class MainWindow(QMainWindow):
         central_widget_container.setLayout(central_layout)
         self.setCentralWidget(central_widget_container)
 
-        # Set styles for the page-switching menu.
-        self.menu.setStyleSheet("""
-        QListWidget {
-            font-size: 20pt;
-        }
-        QListWidget::item {
-            margin: 1em;
-        }
-        """)
-        # Retrieve the max width of the widest row in self.menu. Done after the stylesheet is set!
-        max_width_menu_item = self.menu.sizeHintForColumn(0)
-        self.menu.setMinimumWidth(max_width_menu_item + 15)  # Add extra padding on a menu item for QoL.
+        # Set style identifier for the page-switching menu.
+        self.menu.setObjectName("menu")
+        # Enforce a minimum size limit for the menu. Otherwise, it'll shrink past the text.
+        menu_items_width = self.menu.sizeHintForColumn(0)
+        self.menu.setMinimumWidth(menu_items_width + 15)  # Add extra padding on a menu item for QoL.
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         # Additional window setup.
@@ -67,8 +61,14 @@ class MainWindow(QMainWindow):
         self.resize(default_screen_width, default_screen_height)
 
 
+def apply_stylesheet(application: QApplication, qss_path: str):
+    with Path(qss_path).open("r", encoding="utf-8") as style_file:
+        application.setStyleSheet(style_file.read())
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    apply_stylesheet(app, "styles/default.qss")
     main_window = MainWindow()
     main_window.show()
 

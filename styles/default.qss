@@ -1,0 +1,8 @@
+/* Applies to QListWidgets whose objectName == "menu". */
+QListWidget#menu {
+    font-size: 20pt;
+}
+
+QListWidget#menu::item {
+    margin: 1em;
+}
