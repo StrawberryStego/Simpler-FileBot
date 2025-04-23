@@ -214,11 +214,15 @@ class CoreRenamerWidget(QWidget):
         for i in range(self.right_box.count()):
             output_file_names.append(self.right_box.item(i).text())
 
-        invalid_file_names_and_fixes = get_invalid_file_names_and_fixes(output_file_names)
+        invalid_file_names_and_fixes: dict[str, str] = get_invalid_file_names_and_fixes(output_file_names)
 
         if len(invalid_file_names_and_fixes) > 0:
-            # Implement confirmation here.
+            error_msg = ""
+            for invalid_matched_name, fix in invalid_file_names_and_fixes:
+                error_msg += invalid_matched_name + "—→" + fix + "\n"
+
             QApplication.restoreOverrideCursor()
+            ErrorPopupWidget(error_msg).exec()
 
         try:
             self.rename_files()
