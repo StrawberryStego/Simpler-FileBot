@@ -15,3 +15,8 @@ QListWidget#menu::item {
     font-size: 12pt;
     min-height: 2em;
 }
+
+#core QLabel {
+    font-size: 15pt;
+    margin-bottom: 0.25em;
+}
