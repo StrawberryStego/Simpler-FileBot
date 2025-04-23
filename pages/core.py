@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout
 from backend.core_backend import (match_titles_using_db_and_format, get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
 from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
+from backend.error_popup_widget import ErrorPopupWidget
 from backend.media_record import MediaRecord
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
@@ -219,12 +220,21 @@ class CoreRenamerWidget(QWidget):
             # Implement confirmation here.
             QApplication.restoreOverrideCursor()
 
-        self.rename_files()
-        QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
+        try:
+            self.rename_files()
+        except ValueError:
+            QApplication.restoreOverrideCursor()
+            ErrorPopupWidget("Fatal error renaming files. Please file a bug report!").exec()
+            return
+        except OSError as e:
+            QApplication.restoreOverrideCursor()
+            ErrorPopupWidget(str(e)).exec()
+            return
+        finally:
+            QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
+            QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
 
-        QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
-
-        # Disable the rename button and enable the undo button once files are renamed.
+        # Disable the rename button and enable the undo button once files are successfully renamed.
         self.rename_button.setEnabled(False)
         self.undo_button.setEnabled(True)
 
@@ -233,17 +243,28 @@ class CoreRenamerWidget(QWidget):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
         renamed_file_names, old_file_names = map(list, zip(*self.last_renames))
-        perform_file_renaming(renamed_file_names, old_file_names)
-        self.last_renames.clear()
 
-        QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
-        self.undo_button.setEnabled(False)
+        try:
+            perform_file_renaming(renamed_file_names, old_file_names)
+        except (ValueError, OSError):
+            QApplication.restoreOverrideCursor()
+            ErrorPopupWidget("Could not undo the rename operation! Perhaps files were moved?").exec()
+            return
+        finally:
+            self.last_renames.clear()
+            QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
+            self.undo_button.setEnabled(False)
 
     def is_rename_allowed(self) -> bool:
         """Each record in the input box must have a matching title to rename to."""
         return self.left_box.count() == self.right_box.count()
 
     def rename_files(self):
+        """
+        Attempts to rename the files from the left box to the filenames from the right box.
+        Raises an error if perform_file_renaming() fails.
+        """
+
         old_file_names = []
         new_file_names = []
 
@@ -259,6 +280,7 @@ class CoreRenamerWidget(QWidget):
 
             new_file_names.append(full_new_path)
 
+        # Error is raised if the file renaming fails.
         perform_file_renaming(old_file_names, new_file_names)
 
         # Store filenames for undo operation.
