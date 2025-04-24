@@ -69,3 +69,17 @@ def retrieve_settings_as_dictionary() -> dict:
 def get_theme_from_settings() -> str:
     """Returns the theme from settings.json. Defaults to 'Dark' if settings are erroneous."""
     return retrieve_settings_as_dictionary().get("theme", "Dark")
+
+
+@ensure_settings_file
+def save_new_theme_to_settings(scheme: Qt.ColorScheme):
+    """Update the “theme” key in settings.json to either 'Light' or 'Dark'."""
+    path = Path(SETTINGS_FILE_PATH)
+
+    # Load existing settings.
+    settings = retrieve_settings_as_dictionary()
+    settings["theme"] = scheme.name
+
+    # Write settings back to settings.json
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(settings, file, indent=4)
