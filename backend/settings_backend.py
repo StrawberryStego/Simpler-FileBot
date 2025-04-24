@@ -23,7 +23,7 @@ def ensure_settings_file(func):
 
 
 def initialize_settings_file_if_missing():
-    """Initializes a 'default' settings.json file if it does not exist."""
+    """Initializes a settings.json file if it does not exist."""
     default_settings = {
         # 'Dark' or 'Light'... defaults to Dark theme if color scheme could not be found.
         "theme": (Qt.ColorScheme.Dark.name
@@ -42,7 +42,7 @@ def initialize_settings_file_if_missing():
             json.dump(default_settings, file, indent=4)
 
 
-def reset_settings_to_default():
+def delete_and_recreate_settings_file():
     Path(SETTINGS_FILE_PATH).unlink(missing_ok=True)
     initialize_settings_file_if_missing()
 

@@ -1,8 +1,11 @@
-from PySide6.QtCore import Slot
+import sys
+
+from PySide6.QtCore import Slot, QCoreApplication, QProcess
 from PySide6.QtGui import QGuiApplication, Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox
 
-from backend.settings_backend import get_theme_from_settings, reset_settings_to_default, save_new_theme_to_settings
+from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
+                                      save_new_theme_to_settings)
 
 
 def set_ui_elements_from_settings():
@@ -35,7 +38,7 @@ class SettingsPage(QWidget):
 
         # Reset Settings UI Components.
         reset_button = QPushButton("Reset All Settings to Default")
-        reset_button.clicked.connect(self.reset_settings_and_update_ui)
+        reset_button.clicked.connect(self.reset_settings)
 
         set_ui_elements_from_settings()
 
@@ -58,23 +61,27 @@ class SettingsPage(QWidget):
             save_new_theme_to_settings(Qt.ColorScheme.Dark)
 
         # Notify the user to restart the application for changes.
-        QMessageBox.question(self,
-                             "Restart",
-                             "Please restart the application to apply theme changes!",
-                             QMessageBox.StandardButton.Ok)
+        self.ask_restart()
 
     @Slot()
-    def reset_settings_and_update_ui(self):
+    def reset_settings(self):
         reply = QMessageBox.question(self, "Reset Settings",
                                      "Do you want to reset all settings to defaults?",
                                      QMessageBox.StandardButton.Yes,
                                      QMessageBox.StandardButton.No)
 
         if reply == QMessageBox.StandardButton.Yes:
-            reset_settings_to_default()
+            delete_and_recreate_settings_file()
 
-            # Notify the user to restart the application for changes.
-            QMessageBox.question(self,
-                                 "Restart",
-                                 "Please restart the application to apply settings!",
-                                 QMessageBox.StandardButton.Ok)
+    def ask_restart(self):
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Restart Required")
+        msg.setText("Please restart the application to apply changes!")
+        restart_button = msg.addButton("Restart now", QMessageBox.ButtonRole.AcceptRole)
+        msg.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        msg.exec()
+
+        if msg.clickedButton() is restart_button:
+            # Restart the application for the user.
+            QCoreApplication.quit()
+            QProcess.startDetached(sys.executable, sys.argv)
