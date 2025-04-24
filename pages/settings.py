@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton
 
+from backend.settings_backend import get_theme_from_settings
+
 
 class SettingsPage(QWidget):
     """Settings page for miscellaneous options/settings."""
@@ -15,6 +17,8 @@ class SettingsPage(QWidget):
         theme_label = QLabel("Select Theme:")
         self.theme_options = QComboBox()
         self.theme_options.addItems(["Light", "Dark"])
+        if get_theme_from_settings() == "Dark":
+            self.theme_options.setCurrentIndex(1)
 
         # Reset Settings UI Components.
         reset_button = QPushButton("Reset All Settings to Default")
