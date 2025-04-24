@@ -42,6 +42,11 @@ def initialize_settings_file_if_missing():
             json.dump(default_settings, file, indent=4)
 
 
+def reset_settings_to_default():
+    Path(SETTINGS_FILE_PATH).unlink(missing_ok=True)
+    initialize_settings_file_if_missing()
+
+
 @ensure_settings_file
 def retrieve_settings_as_dictionary() -> dict:
     """Retrieves settings.json in the form of a Python dictionary."""
