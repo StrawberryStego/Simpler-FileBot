@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, Q
 
 from pages.core import CorePage
 from pages.formats import FormatsPage
-from pages.preferences import PreferencesPage
+from pages.settings import SettingsPage
 
 # Percentage of the screen's dimensions that various widget sizes should adhere to.
 DEFAULT_APP_WIDTH_SCALING = 0.70
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.pages = QStackedWidget()
         self.pages.addWidget(CorePage())
         self.pages.addWidget(FormatsPage())
-        self.pages.addWidget(PreferencesPage())
+        self.pages.addWidget(SettingsPage())
         self.pages.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         central_layout.addWidget(self.pages)
 
