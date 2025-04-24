@@ -1,5 +1,5 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox
 
 from backend.settings_backend import get_theme_from_settings, reset_settings_to_default
 
@@ -33,7 +33,14 @@ class SettingsPage(QWidget):
 
     @Slot()
     def reset_settings_and_update_ui(self):
-        reset_settings_to_default()
+        reply = QMessageBox.question(self, "Reset Settings",
+                                     "Do you want to reset all settings to defaults?",
+                                     QMessageBox.StandardButton.Yes,
+                                     QMessageBox.StandardButton.No)
+
+        if reply == QMessageBox.StandardButton.Yes:
+            reset_settings_to_default()
+
         self.update_ui_elements_from_settings()
 
     def update_ui_elements_from_settings(self):
