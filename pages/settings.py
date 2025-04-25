@@ -6,7 +6,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButt
     QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
 from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
-                                      save_new_theme_to_settings, add_excluded_folder, get_excluded_folders)
+                                      save_new_theme_to_settings, add_excluded_folder, get_excluded_folders,
+                                      remove_excluded_folder)
 
 
 def set_color_theme_on_startup():
@@ -47,16 +48,17 @@ class SettingsPage(QWidget):
         help_button = QToolButton()
         help_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxQuestion))
         help_button.setToolTip(
-            "Simpler FileBot uses a library to guess information about your files base on its total path."
+            "Simpler FileBot uses 'guessit' to guess information about your files based on its total path."
             "\nThis allows the guessing library to guess the series name, e.g., /TV Series Name/Season 1/..."
             "\nHowever, there are certain parent folder names that can conflict with that."
             "\n\nThe library guesses the TV name for 'C:/Stuff Ultra/TV Series Name/Season 1/...', as 'Stuff Ultra'."
-            "\n\nFolder Exclusions allows you to exclude 'C:/Stuff Ultra/' during guessing."
+            "\n\nFolder Exclusions allows you to exclude 'C:/Stuff Ultra/' but retain everything after during guessing."
         )
         help_button.setAutoRaise(True)
         add_folders_button = QPushButton("📁 Add Folder(s)")
         add_folders_button.clicked.connect(self.choose_exclusion_folder)
         delete_folder_button = QPushButton("Delete Folder")
+        delete_folder_button.clicked.connect(self.delete_selected_excluded_folder)
         folder_exclusion_button_layout.addWidget(help_button)
         folder_exclusion_button_layout.addWidget(add_folders_button)
         folder_exclusion_button_layout.addWidget(delete_folder_button)
@@ -102,6 +104,7 @@ class SettingsPage(QWidget):
 
         if reply == QMessageBox.StandardButton.Yes:
             delete_and_recreate_settings_file()
+            self.display_excluded_folders_from_settings()
 
     @Slot()
     def choose_exclusion_folder(self):
@@ -118,6 +121,19 @@ class SettingsPage(QWidget):
 
         if selected_exclusion_folder:
             add_excluded_folder(selected_exclusion_folder)
+            self.display_excluded_folders_from_settings()
+
+    @Slot()
+    def delete_selected_excluded_folder(self):
+        # Selected items should return one folder since only one QListWidgetItem can be selected at once.
+        selected_items = self.folder_exclusion_list.selectedItems()
+        if not selected_items:
+            return
+
+        for item in selected_items:
+            # Grab the actual folder path from the QListWidgetItem.
+            folder_path = item.text()
+            remove_excluded_folder(folder_path)
             self.display_excluded_folders_from_settings()
 
     def ask_restart(self):
