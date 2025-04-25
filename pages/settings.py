@@ -9,8 +9,11 @@ from backend.settings_backend import (get_theme_from_settings, delete_and_recrea
                                       save_new_theme_to_settings)
 
 
-def set_ui_elements_from_settings():
-    """Retrieves settings from settings.json and sets UI elements to match."""
+def set_color_theme_on_startup():
+    """
+    Grabs the desired theme from settings and sets the color theme for the UI before other elements are drawn.
+    Setting the color theme after elements have been drawn does not work.
+    """
 
     if get_theme_from_settings() == "Light":
         QGuiApplication.styleHints().setColorScheme(Qt.ColorScheme.Light)
@@ -61,7 +64,7 @@ class SettingsPage(QWidget):
         reset_button = QPushButton("Reset All Settings to Default")
         reset_button.clicked.connect(self.reset_settings)
 
-        set_ui_elements_from_settings()
+        set_color_theme_on_startup()
 
         settings_page_layout.addWidget(title)
         settings_page_layout.addWidget(theme_label)
