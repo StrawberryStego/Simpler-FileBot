@@ -1,8 +1,19 @@
-<h1 align="center">Simpler FileBot 🗃️</h1>
-This is a batch file-renaming tool for movies and tv shows.
+# Simpler FileBot 🗃️
+This is a batch file-renaming GUI tool for movies and tv shows.
 
-## Installation
-- Clone the repository
-- (Optionally) Make a virtual environment for dependencies [Call .\venv\Scripts\activate to set virtual environment]
-- Install dependencies within requirements.txt (pip install -r requirements.txt)
-- Run main.py (py main.py)
+Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind.
+
+## Requirements
+- [Python 3.9+](https://www.python.org/downloads/) (Latest Version Recommended)
+
+## Installation Methods
+
+### Clone & Run
+- `git clone https://github.com/StrawberryStego/Simpler-FileBot`
+
+- `pip install -r requirements.txt [Optionally, make a virtual environment]`
+
+- `py main.py`
+
+### Releases
+- [Simpler FileBot Releases](https://github.com/StrawberryStego/Simpler-FileBot/releases)
