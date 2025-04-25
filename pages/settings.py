@@ -3,10 +3,10 @@ import sys
 from PySide6.QtCore import Slot, QCoreApplication, QProcess
 from PySide6.QtGui import QGuiApplication, Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
-    QHBoxLayout, QToolButton, QStyle
+    QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
 from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
-                                      save_new_theme_to_settings)
+                                      save_new_theme_to_settings, add_excluded_folder, get_excluded_folders)
 
 
 def set_color_theme_on_startup():
@@ -42,7 +42,7 @@ class SettingsPage(QWidget):
 
         # Folder Exclusion UI Components.
         folder_exclusion_label = QLabel("Folder Exclusions:")
-        folder_exclusion_list = QListWidget()
+        self.folder_exclusion_list = QListWidget()
         folder_exclusion_button_layout = QHBoxLayout()
         help_button = QToolButton()
         help_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxQuestion))
@@ -55,6 +55,7 @@ class SettingsPage(QWidget):
         )
         help_button.setAutoRaise(True)
         add_folders_button = QPushButton("📁 Add Folder(s)")
+        add_folders_button.clicked.connect(self.choose_exclusion_folder)
         delete_folder_button = QPushButton("Delete Folder")
         folder_exclusion_button_layout.addWidget(help_button)
         folder_exclusion_button_layout.addWidget(add_folders_button)
@@ -64,13 +65,15 @@ class SettingsPage(QWidget):
         reset_button = QPushButton("Reset All Settings to Default")
         reset_button.clicked.connect(self.reset_settings)
 
+        # Grabs settings from settings.json and displays them to the user on startup.
         set_color_theme_on_startup()
+        self.display_excluded_folders_from_settings()
 
         settings_page_layout.addWidget(title)
         settings_page_layout.addWidget(theme_label)
         settings_page_layout.addWidget(self.theme_options)
         settings_page_layout.addWidget(folder_exclusion_label)
-        settings_page_layout.addWidget(folder_exclusion_list)
+        settings_page_layout.addWidget(self.folder_exclusion_list)
         settings_page_layout.addLayout(folder_exclusion_button_layout)
         settings_page_layout.addStretch()
         settings_page_layout.addWidget(reset_button)
@@ -100,6 +103,23 @@ class SettingsPage(QWidget):
         if reply == QMessageBox.StandardButton.Yes:
             delete_and_recreate_settings_file()
 
+    @Slot()
+    def choose_exclusion_folder(self):
+        """
+        Allow users to choose an exclusion folder.
+        Add it to folder exclusion's QListWidget and save it to settings.json.
+        """
+        selected_exclusion_folder = QFileDialog.getExistingDirectory(
+            self,
+            "Select Folder to Exclude",
+            "",
+            QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontResolveSymlinks
+        )
+
+        if selected_exclusion_folder:
+            add_excluded_folder(selected_exclusion_folder)
+            self.display_excluded_folders_from_settings()
+
     def ask_restart(self):
         msg = QMessageBox(self)
         msg.setWindowTitle("Restart Required")
@@ -112,3 +132,10 @@ class SettingsPage(QWidget):
             # Restart the application for the user.
             QCoreApplication.quit()
             QProcess.startDetached(sys.executable, sys.argv)
+
+    def display_excluded_folders_from_settings(self):
+        """Displays the current excluded folders from settings.json. Old values are removed from the QListWidget."""
+        self.folder_exclusion_list.clear()
+
+        for folder in get_excluded_folders():
+            self.folder_exclusion_list.addItem(QListWidgetItem(folder))

@@ -28,7 +28,8 @@ def initialize_settings_file_if_missing():
         # 'Dark' or 'Light'... defaults to Dark theme if color scheme could not be found.
         "theme": (Qt.ColorScheme.Dark.name
                   if QGuiApplication.styleHints().colorScheme() == Qt.ColorScheme.Unknown
-                  else QGuiApplication.styleHints().colorScheme().name)
+                  else QGuiApplication.styleHints().colorScheme().name),
+        "excluded_folders": []
     }
 
     path = Path(SETTINGS_FILE_PATH)
@@ -83,3 +84,24 @@ def save_new_theme_to_settings(scheme: Qt.ColorScheme):
     # Write settings back to settings.json
     with path.open("w", encoding="utf-8") as file:
         json.dump(settings, file, indent=4)
+
+
+@ensure_settings_file
+def add_excluded_folder(folder_path: str):
+    """Add a folder to the 'excluded_folders' list in settings.json."""
+    path = Path(SETTINGS_FILE_PATH)
+
+    settings = retrieve_settings_as_dictionary()
+    # Use a set to prevent duplicates.
+    excluded_folders: set = set(settings.get("excluded_folders", []))
+    excluded_folders.add(folder_path)
+
+    settings["excluded_folders"] = sorted(excluded_folders)
+
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(settings, file, indent=4)
+
+
+@ensure_settings_file
+def get_excluded_folders() -> list[str]:
+    return retrieve_settings_as_dictionary().get("excluded_folders", [])
