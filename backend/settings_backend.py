@@ -103,5 +103,20 @@ def add_excluded_folder(folder_path: str):
 
 
 @ensure_settings_file
+def remove_excluded_folder(folder_path: str):
+    """Remove a folder from the 'excluded_folders' list in settings.json."""
+    path = Path(SETTINGS_FILE_PATH)
+
+    settings = retrieve_settings_as_dictionary()
+    excluded_folders: list = settings.get("excluded_folders", [])
+
+    if folder_path in excluded_folders:
+        excluded_folders.remove(folder_path)
+        settings["excluded_folders"] = excluded_folders
+        with path.open("w", encoding="utf-8") as file:
+            json.dump(settings, file, indent=4)
+
+
+@ensure_settings_file
 def get_excluded_folders() -> list[str]:
     return retrieve_settings_as_dictionary().get("excluded_folders", [])
