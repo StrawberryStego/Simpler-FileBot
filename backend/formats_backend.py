@@ -25,7 +25,6 @@ def initialize_formats_file():
 
 
 def read_formats_file():
-    print(formats_file_path)
     # Reads and returns the content of the formats.json file.
 
     try:
