@@ -1,13 +1,14 @@
+import os.path
 import sys
 
-from PySide6.QtCore import Slot, QCoreApplication, QProcess
-from PySide6.QtGui import QGuiApplication, Qt
+from PySide6.QtCore import Slot, QCoreApplication, QProcess, QUrl
+from PySide6.QtGui import QGuiApplication, Qt, QDesktopServices
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
     QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
 from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
                                       save_new_theme_to_settings, add_excluded_folder, get_excluded_folders,
-                                      remove_excluded_folder)
+                                      remove_excluded_folder, SETTINGS_FILE_PATH)
 
 
 def set_color_theme_on_startup():
@@ -63,6 +64,10 @@ class SettingsPage(QWidget):
         folder_exclusion_button_layout.addWidget(add_folders_button)
         folder_exclusion_button_layout.addWidget(delete_folder_button)
 
+        # Opens the settings folder when clicked.
+        open_settings_button = QPushButton("📁 Open Settings Folder")
+        open_settings_button.clicked.connect(self.open_settings_folder)
+
         # Reset Settings UI Components.
         reset_button = QPushButton("Reset All Settings to Default")
         reset_button.clicked.connect(self.reset_settings)
@@ -78,6 +83,7 @@ class SettingsPage(QWidget):
         settings_page_layout.addWidget(self.folder_exclusion_list)
         settings_page_layout.addLayout(folder_exclusion_button_layout)
         settings_page_layout.addStretch()
+        settings_page_layout.addWidget(open_settings_button)
         settings_page_layout.addWidget(reset_button)
 
     @Slot(int)
@@ -135,6 +141,11 @@ class SettingsPage(QWidget):
             folder_path = item.text()
             remove_excluded_folder(folder_path)
             self.display_excluded_folders_from_settings()
+
+    @Slot()
+    def open_settings_folder(self):
+        settings_folder_path = os.path.dirname(SETTINGS_FILE_PATH)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(settings_folder_path))
 
     def ask_restart(self):
         msg = QMessageBox(self)
