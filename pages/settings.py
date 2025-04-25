@@ -56,9 +56,9 @@ class SettingsPage(QWidget):
             "\n\nFolder Exclusions allows you to exclude 'C:/Stuff Ultra/' but retain everything after during guessing."
         )
         help_button.setAutoRaise(True)
-        add_folders_button = QPushButton("📁 Add Folder(s)")
+        add_folders_button = QPushButton("📁 Add Folder")
         add_folders_button.clicked.connect(self.choose_exclusion_folder)
-        delete_folder_button = QPushButton("Delete Folder")
+        delete_folder_button = QPushButton("❌ Delete Folder")
         delete_folder_button.clicked.connect(self.delete_selected_excluded_folder)
         folder_exclusion_button_layout.addWidget(help_button)
         folder_exclusion_button_layout.addWidget(add_folders_button)
