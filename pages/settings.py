@@ -2,7 +2,8 @@ import sys
 
 from PySide6.QtCore import Slot, QCoreApplication, QProcess
 from PySide6.QtGui import QGuiApplication, Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
+    QHBoxLayout, QToolButton, QStyle
 
 from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
                                       save_new_theme_to_settings)
@@ -36,6 +37,26 @@ class SettingsPage(QWidget):
             self.theme_options.setCurrentIndex(1)
         self.theme_options.currentIndexChanged.connect(self.on_theme_changed)
 
+        # Folder Exclusion UI Components.
+        folder_exclusion_label = QLabel("Folder Exclusions:")
+        folder_exclusion_list = QListWidget()
+        folder_exclusion_button_layout = QHBoxLayout()
+        help_button = QToolButton()
+        help_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxQuestion))
+        help_button.setToolTip(
+            "Simpler FileBot uses a library to guess information about your files base on its total path."
+            "\nThis allows the guessing library to guess the series name, e.g., /TV Series Name/Season 1/..."
+            "\nHowever, there are certain parent folder names that can conflict with that."
+            "\n\nThe library guesses the TV name for 'C:/Stuff Ultra/TV Series Name/Season 1/...', as 'Stuff Ultra'."
+            "\n\nFolder Exclusions allows you to exclude 'C:/Stuff Ultra/' during guessing."
+        )
+        help_button.setAutoRaise(True)
+        add_folders_button = QPushButton("📁 Add Folder(s)")
+        delete_folder_button = QPushButton("Delete Folder")
+        folder_exclusion_button_layout.addWidget(help_button)
+        folder_exclusion_button_layout.addWidget(add_folders_button)
+        folder_exclusion_button_layout.addWidget(delete_folder_button)
+
         # Reset Settings UI Components.
         reset_button = QPushButton("Reset All Settings to Default")
         reset_button.clicked.connect(self.reset_settings)
@@ -45,6 +66,9 @@ class SettingsPage(QWidget):
         settings_page_layout.addWidget(title)
         settings_page_layout.addWidget(theme_label)
         settings_page_layout.addWidget(self.theme_options)
+        settings_page_layout.addWidget(folder_exclusion_label)
+        settings_page_layout.addWidget(folder_exclusion_list)
+        settings_page_layout.addLayout(folder_exclusion_button_layout)
         settings_page_layout.addStretch()
         settings_page_layout.addWidget(reset_button)
 
