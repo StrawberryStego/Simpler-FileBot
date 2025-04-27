@@ -20,4 +20,4 @@ Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind.
 
 ## Supported Databases
 
-### - [TVMaze](https://www.tvmaze.com/)
+### - [TVMaze](https://www.tvmaze.com/) [[Python Library](https://github.com/yakupadakli/python-tvmaze)]
