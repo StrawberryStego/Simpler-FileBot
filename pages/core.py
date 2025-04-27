@@ -15,6 +15,7 @@ from databases.file_name_match_db import FileNameMatchDB
 from databases.tvmaze_python_db import TVMazePythonDB
 
 
+# pylint: disable=too-many-locals
 class CoreRenamerWidget(QWidget):
     """Specifically contains the input box, output box, match button, rename button, and undo button."""
 
@@ -103,6 +104,7 @@ class CoreRenamerWidget(QWidget):
 
         def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
             """Populates the layout with UI components based on MediaRecords."""
+            database_specs = self.retrieve_dictionary_of_db_buttons_with_mappings()
 
             # Contains a mix of movies and shows.
             if MediaRecord.has_movies(media_records) and MediaRecord.has_episodes(media_records):
@@ -134,7 +136,11 @@ class CoreRenamerWidget(QWidget):
                 input_update_container_layout.addWidget(input_box)
                 input_update_container_layout.addWidget(update_button)
 
-                database_buttons_widget = self.create_database_selection_layout()
+                database_buttons_widget = QWidget()
+                database_buttons_layout = QHBoxLayout(database_buttons_widget)
+                for button, supported_media_type in database_specs.items():
+                    if supported_media_type.count("show") == 1:
+                        database_buttons_layout.addWidget(button)
 
                 layout.addWidget(title_label)
                 layout.addWidget(input_update_container)
@@ -144,32 +150,40 @@ class CoreRenamerWidget(QWidget):
             elif not MediaRecord.has_episodes(media_records):
                 label = QLabel(f"Got {len(media_records)} movie files!")
 
-                database_buttons_widget = self.create_database_selection_layout()
+                database_buttons_widget = QWidget()
+                database_buttons_layout = QHBoxLayout(database_buttons_widget)
+                for button, supported_media_type in database_specs.items():
+                    if supported_media_type.count("movie") == 1:
+                        database_buttons_layout.addWidget(button)
 
                 layout.addWidget(label)
                 layout.addWidget(database_buttons_widget)
 
-        def create_database_selection_layout(self) -> QWidget:
-            widget = QWidget()
-
-            layout = QHBoxLayout(widget)
-
-            ani_db_button = QPushButton("AniDB")
-            the_tv_db_button = QPushButton("TheTVDB")
+        def retrieve_dictionary_of_db_buttons_with_mappings(self) -> dict[QPushButton, list[str]]:
+            """Returns a dictionary of (QPushButton, Whether the database button supports movies and/or shows)"""
             the_movie_db_button = QPushButton("TheMovieDB")
+
+            the_tv_db_button = QPushButton("TheTVDB")
+
             tv_maze_db_button = QPushButton("TVMaze")
             tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
                 TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
+
+            ani_db_button = QPushButton("AniDB")
+
             file_name_match_db_button = QPushButton("Attempt to match by filename only")
             file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
                 FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
-            layout.addWidget(ani_db_button)
-            layout.addWidget(the_tv_db_button)
-            layout.addWidget(the_movie_db_button)
-            layout.addWidget(tv_maze_db_button)
-            layout.addWidget(file_name_match_db_button)
 
-            return widget
+            result: dict[QPushButton, list[str]] = {}
+
+            result.update({the_movie_db_button: ["movie"]})
+            result.update({the_tv_db_button: ["show"]})
+            result.update({tv_maze_db_button: ["show"]})
+            result.update({ani_db_button: ["movie", "show"]})
+            result.update({file_name_match_db_button: ["movie", "show"]})
+
+            return result
 
         def match_records_and_populate_output_box(self, database: Database, right_box: QListWidget):
             # Clear output box before populating it.
