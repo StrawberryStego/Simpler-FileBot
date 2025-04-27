@@ -6,8 +6,8 @@ from PySide6.QtGui import QGuiApplication, Qt, QDesktopServices
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
     QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
-from backend.settings_backend import (get_theme_from_settings, delete_and_recreate_settings_file,
-                                      save_new_theme_to_settings, add_excluded_folder, get_excluded_folders,
+from backend.settings_backend import (retrieve_theme_from_settings, delete_and_recreate_settings_file,
+                                      save_new_theme_to_settings, add_excluded_folder, retrieve_excluded_folders,
                                       remove_excluded_folder, SETTINGS_FILE_PATH)
 
 
@@ -17,7 +17,7 @@ def set_color_theme_on_startup():
     Setting the color theme after elements have been drawn does not work.
     """
 
-    if get_theme_from_settings() == "Light":
+    if retrieve_theme_from_settings() == "Light":
         QGuiApplication.styleHints().setColorScheme(Qt.ColorScheme.Light)
     else:
         # Default to 'Dark' otherwise.
@@ -38,7 +38,7 @@ class SettingsPage(QWidget):
         theme_label = QLabel("Select Theme:")
         self.theme_options = QComboBox()
         self.theme_options.addItems(["Light", "Dark"])
-        if get_theme_from_settings() == "Dark":
+        if retrieve_theme_from_settings() == "Dark":
             self.theme_options.setCurrentIndex(1)
         self.theme_options.currentIndexChanged.connect(self.on_theme_changed)
 
@@ -164,5 +164,5 @@ class SettingsPage(QWidget):
         """Displays the current excluded folders from settings.json. Old values are removed from the QListWidget."""
         self.folder_exclusion_list.clear()
 
-        for folder in get_excluded_folders():
+        for folder in retrieve_excluded_folders():
             self.folder_exclusion_list.addItem(QListWidgetItem(folder))
