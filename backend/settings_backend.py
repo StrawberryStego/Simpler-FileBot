@@ -58,8 +58,7 @@ def retrieve_settings_as_dictionary() -> dict:
             return json.load(file)
     except JSONDecodeError:
         # Remove the bad settings file and reinitialize with default settings.
-        path.unlink(missing_ok=True)
-        initialize_settings_file_if_missing()
+        delete_and_recreate_settings_file()
 
         # Return the newly created, default settings file as a dictionary.
         with path.open("r", encoding="utf-8") as file:
