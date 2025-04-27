@@ -2,8 +2,8 @@ import pytest
 from PySide6.QtCore import Qt
 
 from backend import settings_backend
-from backend.settings_backend import retrieve_settings_as_dictionary, get_theme_from_settings, \
-    delete_and_recreate_settings_file, save_new_theme_to_settings, get_excluded_folders, add_excluded_folder, \
+from backend.settings_backend import retrieve_settings_as_dictionary, retrieve_theme_from_settings, \
+    delete_and_recreate_settings_file, save_new_theme_to_settings, retrieve_excluded_folders, add_excluded_folder, \
     remove_excluded_folder
 
 
@@ -36,7 +36,7 @@ def test_retrieve_settings_successful(redirect_settings_file_path_to_temp_file):
 
 # pylint: disable=condition-evals-to-constant
 def test_retrieve_theme_from_settings_successful(redirect_settings_file_path_to_temp_file):
-    retrieved_theme = get_theme_from_settings()
+    retrieved_theme = retrieve_theme_from_settings()
 
     assert retrieved_theme == "Light" or "Dark"
 
@@ -44,11 +44,11 @@ def test_retrieve_theme_from_settings_successful(redirect_settings_file_path_to_
 def test_save_new_theme_to_settings_successful(redirect_settings_file_path_to_temp_file):
     save_new_theme_to_settings(Qt.ColorScheme.Unknown)
 
-    assert get_theme_from_settings() == "Unknown"
+    assert retrieve_theme_from_settings() == "Unknown"
 
 
 def test_retrieve_excluded_folders_successfully(redirect_settings_file_path_to_temp_file):
-    assert len(get_excluded_folders()) == 0
+    assert len(retrieve_excluded_folders()) == 0
 
 
 def test_add_excluded_folder_saves_successfully(redirect_settings_file_path_to_temp_file):
@@ -56,7 +56,7 @@ def test_add_excluded_folder_saves_successfully(redirect_settings_file_path_to_t
 
     add_excluded_folder(test_folder)
 
-    assert get_excluded_folders()[0] == test_folder
+    assert retrieve_excluded_folders()[0] == test_folder
 
 
 def test_remove_excluded_folder_deletes_successfully(redirect_settings_file_path_to_temp_file):
@@ -64,8 +64,8 @@ def test_remove_excluded_folder_deletes_successfully(redirect_settings_file_path
 
     add_excluded_folder(test_folder)
 
-    assert get_excluded_folders()[0] == test_folder
+    assert retrieve_excluded_folders()[0] == test_folder
 
     remove_excluded_folder(test_folder)
 
-    assert len(get_excluded_folders()) == 0
+    assert len(retrieve_excluded_folders()) == 0

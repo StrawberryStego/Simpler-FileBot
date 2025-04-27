@@ -66,7 +66,7 @@ def retrieve_settings_as_dictionary() -> dict:
 
 
 @ensure_settings_file
-def get_theme_from_settings() -> str:
+def retrieve_theme_from_settings() -> str:
     """Returns the theme from settings.json. Defaults to 'Dark' if settings are erroneous."""
     return retrieve_settings_as_dictionary().get("theme", "Dark")
 
@@ -117,5 +117,5 @@ def remove_excluded_folder(folder_path: str):
 
 
 @ensure_settings_file
-def get_excluded_folders() -> list[str]:
+def retrieve_excluded_folders() -> list[str]:
     return retrieve_settings_as_dictionary().get("excluded_folders", [])

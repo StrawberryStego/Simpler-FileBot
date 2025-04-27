@@ -3,7 +3,7 @@ from typing import Iterable
 
 from guessit import guessit
 
-from backend.settings_backend import get_excluded_folders
+from backend.settings_backend import retrieve_excluded_folders
 
 
 def retrieve_all_parent_prefixes(folder_path: str) -> set[str]:
@@ -37,7 +37,7 @@ def remove_excluded_folders_from_file_path(file_path: str) -> str:
     file_path = "C:/Stuff/Show Name/Season 1/E01.mkv"
     → "Show Name/Season 1/E01.mkv"
     """
-    excluded_folders: list[str] = get_excluded_folders()
+    excluded_folders: list[str] = retrieve_excluded_folders()
 
     # Return the file_path if there are no excluded folders.
     if len(excluded_folders) == 0:
