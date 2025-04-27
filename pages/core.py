@@ -217,9 +217,16 @@ class CoreRenamerWidget(QWidget):
         invalid_file_names_and_fixes: dict[str, str] = get_invalid_file_names_and_fixes(output_file_names)
 
         if len(invalid_file_names_and_fixes) > 0:
-            error_msg = ""
-            for invalid_matched_name, fix in invalid_file_names_and_fixes:
-                error_msg += invalid_matched_name + "—→" + fix + "\n"
+            error_msg = "These matched names aren't valid. Will use fixed names:\n\n"
+
+            for i in range(self.right_box.count()):
+                matched_file_name = self.right_box.item(i).text()
+                fix = invalid_file_names_and_fixes.get(matched_file_name)
+                if fix is not None:
+                    # Replace the invalid matched name with the fix in the right box.
+                    self.right_box.item(i).setText(invalid_file_names_and_fixes.get(self.right_box.item(i).text()))
+
+                error_msg += matched_file_name + " → " + fix + "\n"
 
             QApplication.restoreOverrideCursor()
             ErrorPopupWidget(error_msg).exec()
