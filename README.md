@@ -17,3 +17,7 @@ Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind.
 
 ### Releases
 - [Simpler FileBot Releases](https://github.com/StrawberryStego/Simpler-FileBot/releases)
+
+## Supported Databases
+
+### - [TVMaze](https://www.tvmaze.com/)

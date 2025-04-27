@@ -12,6 +12,7 @@ from backend.error_popup_widget import ErrorPopupWidget
 from backend.media_record import MediaRecord
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
+from databases.tvmaze_python_db import TVMazePythonDB
 
 
 class CoreRenamerWidget(QWidget):
@@ -157,6 +158,8 @@ class CoreRenamerWidget(QWidget):
             the_tv_db_button = QPushButton("TheTVDB")
             the_movie_db_button = QPushButton("TheMovieDB")
             tv_maze_db_button = QPushButton("TVMaze")
+            tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
+                TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
             file_name_match_db_button = QPushButton("Attempt to match by filename only")
             file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
                 FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
