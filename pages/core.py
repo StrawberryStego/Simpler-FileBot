@@ -127,14 +127,10 @@ class CoreRenamerWidget(QWidget):
                 input_update_container_layout = QHBoxLayout(input_update_container)
                 input_box = QLineEdit()
                 input_box.setText(series_title)
-                update_button = QPushButton("Update")
-                update_button.clicked.connect(lambda:
-                                              (QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor)),
-                                               MediaRecord.update_title_for_all_records(input_box.text(),
-                                                                                        media_records),
-                                               QTimer.singleShot(300, QApplication.restoreOverrideCursor)))
+                input_box.textEdited.connect(lambda:
+                                             MediaRecord.update_title_for_all_records(
+                                                 input_box.text(), media_records))
                 input_update_container_layout.addWidget(input_box)
-                input_update_container_layout.addWidget(update_button)
 
                 database_buttons_widget = QWidget()
                 database_buttons_layout = QHBoxLayout(database_buttons_widget)
