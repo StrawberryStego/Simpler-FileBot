@@ -6,6 +6,7 @@ from backend.formats_backend import retrieve_formats_as_dictionary, delete_and_r
     retrieve_series_format_from_formats_file, save_new_series_format_to_formats_file
 
 
+# pylint: disable=unused-argument, redefined-outer-name
 @pytest.fixture
 def redirect_formats_file_path_to_temp_file(tmp_path):
     """Redirect 'FORMATS_FILE_PATH' to a pytest temporary file, then put it back afterward."""
@@ -24,7 +25,6 @@ def redirect_formats_file_path_to_temp_file(tmp_path):
     formats_backend.FORMATS_FILE_PATH = original_path
 
 
-# pylint: disable=unused-argument, redefined-outer-name
 def test_retrieve_formats_successful(redirect_formats_file_path_to_temp_file):
     formats = retrieve_formats_as_dictionary()
 
@@ -32,14 +32,12 @@ def test_retrieve_formats_successful(redirect_formats_file_path_to_temp_file):
     assert formats.get("series_format") == "S{season_number}E{episode_number} - {episode_title}"
 
 
-# pylint: disable=unused-argument, redefined-outer-name
 def test_retrieve_movies_format_successful(redirect_formats_file_path_to_temp_file):
     retrieved_movie_format = retrieve_movies_format_from_formats_file()
 
     assert retrieved_movie_format == "{movie_name} ({year})"
 
 
-# pylint: disable=unused-argument, redefined-outer-name
 def test_save_new_movies_format_to_formats_file_successful(redirect_formats_file_path_to_temp_file):
     new_movie_format = "Movie Year ({year})"
 
@@ -48,14 +46,12 @@ def test_save_new_movies_format_to_formats_file_successful(redirect_formats_file
     assert retrieve_movies_format_from_formats_file() == new_movie_format
 
 
-# pylint: disable=unused-argument, redefined-outer-name
 def test_retrieve_series_format_successful(redirect_formats_file_path_to_temp_file):
     retrieved_series_format = retrieve_series_format_from_formats_file()
 
     assert retrieved_series_format == "S{season_number}E{episode_number} - {episode_title}"
 
 
-# pylint: disable=unused-argument, redefined-outer-name
 def test_save_new_series_format_to_formats_file_successful(redirect_formats_file_path_to_temp_file):
     new_series_format = "E{episode_number}"
 
