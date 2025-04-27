@@ -32,13 +32,13 @@ class FormatsPage(QWidget):
         movie_tab_layout.addWidget(movie_update_button)
 
         # Movie format tutorial and examples.
-        syntax_label = QLabel("{movie_name} = Title\n"
-                              "{year} = Year\n"
-                              "\nExamples:\n"
-                              "{movie_name} ({year}) \n"
-                              "\tMovieName.2020.ENGLISH.720p.WEBRip.800MB.x264-GalaxyRG.mkv"
-                              " = MovieName (2020)")
-        movie_tab_layout.addWidget(syntax_label)
+        movie_syntax_label = QLabel("{movie_name} = Title\n"
+                                    "{year} = Year\n"
+                                    "\nExamples:\n"
+                                    "{movie_name} ({year}) \n"
+                                    "\tMovieName.2020.ENGLISH.720p.WEBRip.800MB.x264-GalaxyRG.mkv"
+                                    " = MovieName (2020)")
+        movie_tab_layout.addWidget(movie_syntax_label)
 
         movie_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -57,17 +57,17 @@ class FormatsPage(QWidget):
                                              save_new_series_format_to_formats_file(series_line_edit.text()))
         episode_tab_layout.addWidget(series_update_button)
 
-        # Syntax label.
-        self.syntax_label = QLabel("{series_name} = Title\n"
-                                   "{season_number} = Season Number\n"
-                                   "{episode_number} = Episode Number\n"
-                                   "{episode_title} = Episode Title\n"
-                                   "{year} = Year\n"
-                                   "\nExamples:\n"
-                                   "{series_name} - S{season_number}E{episode_number} - {episode_title}\n"
-                                   "\tChernobyl.S01E01.1.23.45.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv"
-                                   " = Chernobyl - S01E01 - 1.23.45.mkv\n")
-        episode_tab_layout.addWidget(self.syntax_label)
+        # Episode format tutorial and examples.
+        episode_syntax_label = QLabel("{series_name} = Title\n"
+                                      "{season_number} = Season Number\n"
+                                      "{episode_number} = Episode Number\n"
+                                      "{episode_title} = Episode Title\n"
+                                      "{year} = Year\n"
+                                      "\nExamples:\n"
+                                      "{series_name} - S{season_number}E{episode_number} - {episode_title}\n"
+                                      "\tChernobyl.S01E01.1.23.45.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv"
+                                      " = Chernobyl - S01E01 - 1.23.45.mkv\n")
+        episode_tab_layout.addWidget(episode_syntax_label)
 
         episode_tab.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
 
