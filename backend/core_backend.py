@@ -5,6 +5,8 @@ from databases.database import Database
 
 
 def match_titles_using_db_and_format(database: Database) -> list[str]:
+    """Match each MediaRecord in the database with a correctly formatted file name using the database."""
+
     formatted_matched_titles = []
     media_records: list[MediaRecord] = database.media_records
 

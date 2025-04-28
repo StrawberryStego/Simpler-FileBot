@@ -165,8 +165,6 @@ class CoreRenamerWidget(QWidget):
             tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
                 TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
 
-            ani_db_button = QPushButton("AniDB")
-
             file_name_match_db_button = QPushButton("Attempt to match by filename only")
             file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
                 FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
@@ -176,7 +174,6 @@ class CoreRenamerWidget(QWidget):
             result.update({the_movie_db_button: ["movie"]})
             result.update({the_tv_db_button: ["show"]})
             result.update({tv_maze_db_button: ["show"]})
-            result.update({ani_db_button: ["movie", "show"]})
             result.update({file_name_match_db_button: ["movie", "show"]})
 
             return result
