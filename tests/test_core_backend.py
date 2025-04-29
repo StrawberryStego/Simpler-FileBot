@@ -3,7 +3,7 @@ import os
 import pytest
 
 from backend.core_backend import (match_titles_using_db_and_format, get_invalid_file_names_and_fixes,
-                                  perform_file_renaming)
+                                  perform_file_renaming, create_formatted_title)
 from backend.media_record import MediaRecord
 from databases.file_name_match_db import FileNameMatchDB
 
@@ -86,3 +86,30 @@ def test_invalid_lists_for_renaming_raises_valueerror():
 
     error_msg = str(error_info)
     assert "2 files" in error_msg and "3 files" in error_msg
+
+
+def test_create_formatted_series_title_correctly():
+    format_template = "{series_name} ({year}) - S{season_number}E{episode_number} - {episode_title}"
+    series_context: dict = {
+        "series_name": "The Blacklist",
+        "year": "2013",
+        "season_number": "03",
+        "episode_number": "10",
+        "episode_title": None
+    }
+
+    formatted_title = create_formatted_title(format_template, series_context)
+
+    assert formatted_title == "The Blacklist (2013) - S03E10 - {None}"
+
+
+def test_create_formatted_movie_title_correctly():
+    format_template = "{year} {movie_name} ({year})"
+    movie_context: dict = {
+        "movie_name": "Warfare",
+        "year": "2025"
+    }
+
+    formatted_title = create_formatted_title(format_template, movie_context)
+
+    assert formatted_title == "2025 Warfare (2025)"
