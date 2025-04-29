@@ -24,6 +24,24 @@ class JSONConfig:
         data[key] = value
         self._write_to_json(data)
 
+    def add(self, key, data_to_add):
+        """Allows config to add values to a list in a JSON."""
+        data = self._read_from_json()
+        field: list = data.get(key, [])
+        field.append(data_to_add)
+        data[key] = sorted(field)
+
+        self._write_to_json(data)
+
+    def remove(self, key, data_to_remove):
+        data = self._read_from_json()
+        field: list = data.get(key, [])
+
+        if data_to_remove in field:
+            field.remove(data_to_remove)
+            data[key] = field
+            self._write_to_json(data)
+
     def delete_and_recreate_file(self):
         self.path.unlink(missing_ok=True)
         self._ensure_exists()
@@ -31,7 +49,7 @@ class JSONConfig:
     def _ensure_exists(self):
         """Ensures that a JSON file exists before operations are executed."""
 
-        # Create the parent directories of a json file is missing.
+        # Create the parent directories of a json file if missing.
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
         # Create the json file if missing with default values.
