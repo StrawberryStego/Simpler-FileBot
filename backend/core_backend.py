@@ -1,6 +1,6 @@
 import os
 
-from backend.formats_backend import retrieve_formats_as_dictionary
+from backend.formats_backend import retrieve_series_format_from_formats_file, retrieve_movies_format_from_formats_file
 from backend.media_record import MediaRecord
 from databases.database import Database
 
@@ -28,8 +28,6 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
     matched_titles = database.retrieve_media_titles_from_db()
     matched_years = database.retrieve_media_years_from_db()
 
-    user_formats: dict = retrieve_formats_as_dictionary()
-
     for i, media_record in enumerate(media_records):
         if database.is_tv_series:
             # Unformatted numbers.
@@ -44,7 +42,7 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
                 "episode_title": matched_titles[i]
             }
 
-            series_format = user_formats.get("series_format", "S{season_number}E{episode_number} - {episode_title}")
+            series_format = retrieve_series_format_from_formats_file()
 
             formatted_title = create_formatted_title(series_format, series_context)
             formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
@@ -54,7 +52,7 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
                 "year": matched_years[i]
             }
 
-            movie_format = user_formats.get("movie_format", "{movie_name} ({year})")
+            movie_format = retrieve_movies_format_from_formats_file()
 
             formatted_title = create_formatted_title(movie_format, movie_context)
             formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
