@@ -1,0 +1,52 @@
+import json
+from json import JSONDecodeError
+from pathlib import Path
+
+from platformdirs import user_data_dir
+
+
+class JSONConfig:
+    """Handle one JSON config file with sensible defaults."""
+    def __init__(self, filename: str, defaults: dict):
+        self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
+        self.defaults = defaults
+        self._ensure_exists()
+
+    def get(self, key: str, default_value=None):
+        self._ensure_exists()
+
+        return self._read_from_json().get(key, default_value)
+
+    def set(self, key: str, value):
+        self._ensure_exists()
+
+        data = self._read_from_json()
+        data[key] = value
+        self._write_to_json(data)
+
+    def delete_and_recreate_file(self):
+        self.path.unlink(missing_ok=True)
+        self._ensure_exists()
+
+    def _ensure_exists(self):
+        """Ensures that a JSON file exists before operations are executed."""
+
+        # Create the parent directories of a json file is missing.
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Create the json file if missing with default values.
+        if not self.path.is_file():
+            with self.path.open("w", encoding="utf-8") as file:
+                json.dump(self.defaults, file, indent=4)
+
+    def _read_from_json(self) -> dict:
+        try:
+            with self.path.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except JSONDecodeError:
+            self.delete_and_recreate_file()
+            return self._read_from_json()
+
+    def _write_to_json(self, data: dict):
+        with self.path.open("w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)

@@ -1,35 +1,29 @@
 import pytest
 
 from backend import formats_backend
-from backend.formats_backend import retrieve_formats_as_dictionary, delete_and_recreate_formats_file, \
-    retrieve_movies_format_from_formats_file, save_new_movies_format_to_formats_file, \
-    retrieve_series_format_from_formats_file, save_new_series_format_to_formats_file
+from backend.formats_backend import (retrieve_movies_format_from_formats_file, save_new_movies_format_to_formats_file,
+                                     retrieve_series_format_from_formats_file, save_new_series_format_to_formats_file)
+from backend.json_config import JSONConfig
 
 
 # pylint: disable=unused-argument, redefined-outer-name
 @pytest.fixture
-def redirect_formats_file_path_to_temp_file(tmp_path):
-    """Redirect 'FORMATS_FILE_PATH' to a pytest temporary file, then put it back afterward."""
+def redirect_formats_file_path_to_temp_file(tmp_path, monkeypatch):
+    """Redirect 'formats_json_config' to a test one, then put it back afterward."""
     fake_path = tmp_path / "formats.json"
 
-    original_path = formats_backend.FORMATS_FILE_PATH
-    formats_backend.FORMATS_FILE_PATH = str(fake_path)
+    test_json_config = JSONConfig(
+        "formats.json",
+        {"movie_format": "{movie_name} ({year})",
+         "series_format": "S{season_number}E{episode_number} - {episode_title}"}
+    )
+    test_json_config.path = fake_path
+    test_json_config.delete_and_recreate_file()
 
-    # Start each test with a clean default file.
-    delete_and_recreate_formats_file()
+    # Set formats_json_config to test_json_config... monkeypatch will restore it automatically.
+    monkeypatch.setattr(formats_backend, "formats_json_config", test_json_config)
 
-    # Provide the fake path to tests.
     yield fake_path
-
-    # Restore the original file path so later tests behave normally.
-    formats_backend.FORMATS_FILE_PATH = original_path
-
-
-def test_retrieve_formats_successful(redirect_formats_file_path_to_temp_file):
-    formats = retrieve_formats_as_dictionary()
-
-    assert formats.get("movie_format") == "{movie_name} ({year})"
-    assert formats.get("series_format") == "S{season_number}E{episode_number} - {episode_title}"
 
 
 def test_retrieve_movies_format_successful(redirect_formats_file_path_to_temp_file):
