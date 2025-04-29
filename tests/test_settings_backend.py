@@ -2,43 +2,37 @@ import pytest
 from PySide6.QtCore import Qt
 
 from backend import settings_backend
-from backend.settings_backend import retrieve_settings_as_dictionary, retrieve_theme_from_settings, \
-    delete_and_recreate_settings_file, save_new_theme_to_settings, retrieve_excluded_folders, add_excluded_folder, \
-    remove_excluded_folder
+from backend.json_config import JSONConfig
+from backend.settings_backend import (retrieve_theme_from_settings, save_new_theme_to_settings,
+                                      retrieve_excluded_folders, add_excluded_folder, remove_excluded_folder)
 
 
 # pylint: disable=unused-argument, redefined-outer-name
 @pytest.fixture
-def redirect_settings_file_path_to_temp_file(tmp_path):
-    """Redirect 'SETTINGS_FILE_PATH' to a pytest temporary file, then put it back afterward."""
+def redirect_settings_file_path_to_temp_file(tmp_path, monkeypatch):
+    """Redirect 'settings_json_config' to a test one, then put it back afterward."""
     fake_path = tmp_path / "settings.json"
 
-    original_path = settings_backend.SETTINGS_FILE_PATH
-    settings_backend.SETTINGS_FILE_PATH = str(fake_path)
+    test_settings_config = JSONConfig(
+        "settings.json",
+        {
+            "theme": "Dark",
+            "excluded_folders": []
+        }
+    )
+    test_settings_config.path = fake_path
+    test_settings_config.delete_and_recreate_file()
 
-    # Start each test with a clean default file.
-    delete_and_recreate_settings_file()
+    monkeypatch.setattr(settings_backend, "_settings_json_config", test_settings_config)
 
-    # Provide the fake path to tests.
     yield fake_path
-
-    # Restore the original file path so later tests behave normally.
-    settings_backend.SETTINGS_FILE_PATH = original_path
-
-
-# pylint: disable=condition-evals-to-constant
-def test_retrieve_settings_successful(redirect_settings_file_path_to_temp_file):
-    settings = retrieve_settings_as_dictionary()
-
-    assert settings.get("theme") == "Light" or "Dark"
-    assert len(settings.get("excluded_folders")) == 0
 
 
 # pylint: disable=condition-evals-to-constant
 def test_retrieve_theme_from_settings_successful(redirect_settings_file_path_to_temp_file):
     retrieved_theme = retrieve_theme_from_settings()
 
-    assert retrieved_theme == "Light" or "Dark"
+    assert retrieved_theme == "Dark"
 
 
 def test_save_new_theme_to_settings_successful(redirect_settings_file_path_to_temp_file):

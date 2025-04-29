@@ -6,9 +6,9 @@ from PySide6.QtGui import QGuiApplication, Qt, QDesktopServices
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
     QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
-from backend.settings_backend import (retrieve_theme_from_settings, delete_and_recreate_settings_file,
-                                      save_new_theme_to_settings, add_excluded_folder, retrieve_excluded_folders,
-                                      remove_excluded_folder, SETTINGS_FILE_PATH)
+from backend.settings_backend import (retrieve_theme_from_settings, save_new_theme_to_settings, add_excluded_folder,
+                                      retrieve_excluded_folders, remove_excluded_folder,
+                                      delete_and_recreate_settings_file, get_settings_file_path)
 
 
 def set_color_theme_on_startup():
@@ -144,7 +144,7 @@ class SettingsPage(QWidget):
 
     @Slot()
     def open_settings_folder(self):
-        settings_folder_path = os.path.dirname(SETTINGS_FILE_PATH)
+        settings_folder_path = os.path.dirname(get_settings_file_path())
         QDesktopServices.openUrl(QUrl.fromLocalFile(settings_folder_path))
 
     def ask_restart(self):
