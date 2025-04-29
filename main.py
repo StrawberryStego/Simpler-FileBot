@@ -6,7 +6,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 
-from pages.core import CorePage
+from pages.core.core import CorePage
 from pages.formats import FormatsPage
 from pages.settings import SettingsPage
 
