@@ -1,33 +1,65 @@
 import os
 
+from backend.formats_backend import retrieve_formats_as_dictionary
 from backend.media_record import MediaRecord
 from databases.database import Database
+
+
+def create_formatted_title(format_template: str, context: dict) -> str:
+    """
+    Create a formatted title by substituting context values into a format_template string.
+    Context values correspond to the supported syntax labeled in the 'Formats' page.
+    """
+
+    # Missing values are replaced with {None} so the file name can be marked by the UI.
+    normalized_context = {key: ("{None}" if value is None else value) for key, value in context.items()}
+
+    # Returns a formatted title. The context is passed as keyword arguments,
+    # instead of positional arguments, to accurately map the context info to the format.
+    return format_template.format(**normalized_context)
 
 
 def match_titles_using_db_and_format(database: Database) -> list[str]:
     """Match each MediaRecord in the database with a correctly formatted file name using the database."""
 
-    formatted_matched_titles = []
+    formatted_titles = []
     media_records: list[MediaRecord] = database.media_records
 
     matched_titles = database.retrieve_media_titles_from_db()
     matched_years = database.retrieve_media_years_from_db()
 
-    for i, item in enumerate(media_records):
-        media_record = item
-        media_title = "{None}" if matched_titles[i] is None else matched_titles[i]
-        media_year = "{None}" if matched_years[i] is None else matched_years[i]
+    user_formats: dict = retrieve_formats_as_dictionary()
 
+    for i, media_record in enumerate(media_records):
         if database.is_tv_series:
-            season_number = media_record.metadata.get("season")
-            episode_number = media_record.metadata.get("episode")
+            # Unformatted numbers.
+            raw_season_number = media_record.metadata.get("season", 1)
+            raw_episode_number = media_record.metadata.get("episode")
 
-            formatted_matched_titles.append(f"S{season_number:02d}E{episode_number:02d} - "
-                                            f"{media_title}.{media_record.metadata.get('container')}")
+            series_context: dict = {
+                "series_name": media_record.title,
+                "year": matched_years[i],
+                "season_number": f"{int(raw_season_number):02d}" if raw_season_number is not None else None,
+                "episode_number": f"{int(raw_episode_number):02d}" if raw_season_number is not None else None,
+                "episode_title": matched_titles[i]
+            }
+
+            series_format = user_formats.get("series_format", "S{season_number}E{episode_number} - {episode_title}")
+
+            formatted_title = create_formatted_title(series_format, series_context)
+            formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
         else:
-            formatted_matched_titles.append(f"{media_title} ({media_year}).{media_record.metadata.get('container')}")
+            movie_context: dict = {
+                "movie_name": matched_titles[i],
+                "year": matched_years[i]
+            }
 
-    return formatted_matched_titles
+            movie_format = user_formats.get("movie_format", "{movie_name} ({year})")
+
+            formatted_title = create_formatted_title(movie_format, movie_context)
+            formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
+
+    return formatted_titles
 
 
 def get_invalid_file_names_and_fixes(file_names: list[str]) -> dict[str, str]:
