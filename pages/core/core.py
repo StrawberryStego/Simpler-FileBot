@@ -7,8 +7,8 @@ from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout
 
 from backend.core_backend import (get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
-from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.error_popup_widget import ErrorPopupWidget
+from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 from pages.core.match_options_widget import MatchOptionsWidget
 
 

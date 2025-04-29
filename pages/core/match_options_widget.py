@@ -4,8 +4,8 @@ from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLa
     QPushButton, QListWidgetItem
 
 from backend.core_backend import match_titles_using_db_and_format
-from backend.drag_and_drop_files_widget import DragAndDropFilesWidget
 from backend.media_record import MediaRecord
+from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
 from databases.tvmaze_python_db import TVMazePythonDB
