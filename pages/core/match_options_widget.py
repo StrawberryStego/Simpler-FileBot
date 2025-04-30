@@ -1,16 +1,17 @@
 from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QIcon, QPixmap
 from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLabel, QWidget, QHBoxLayout, QLineEdit, \
     QPushButton, QListWidgetItem
 
 from backend.api_key_config import api_key_config
 from backend.core_backend import match_titles_using_db_and_format
 from backend.media_record import MediaRecord
-from pages.core.api_key_prompt_widget import ApiKeyPromptWidget
-from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
+from databases.themoviedb_python_db import TheMovieDBPythonDB
 from databases.tvmaze_python_db import TVMazePythonDB
+from pages.core.api_key_prompt_widget import ApiKeyPromptWidget
+from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 
 
 # pylint: disable=too-many-locals
@@ -95,16 +96,20 @@ class MatchOptionsWidget(QDialog):
 
     def retrieve_dictionary_of_db_buttons_with_mappings(self) -> dict[QPushButton, list[str]]:
         """Returns a dictionary of (QPushButton, Whether the database button supports movies and/or shows)"""
-        the_movie_db_button = QPushButton("TheMovieDB")
+        the_movie_db_button = QPushButton(" TheMovieDB ")
         the_movie_db_button.clicked.connect(lambda: self.match_with_database_that_requires_api_key(
-            FileNameMatchDB(self.media_records, self.is_tv_series), "the_movie_db"
+            TheMovieDBPythonDB(self.media_records, self.is_tv_series), "the_movie_db"
         ))
+        the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.svg")))
+        the_movie_db_button.setObjectName("dbBtn")
 
         the_tv_db_button = QPushButton("TheTVDB")
 
-        tv_maze_db_button = QPushButton("TVMaze")
+        tv_maze_db_button = QPushButton(" TVMaze ")
         tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
             TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
+        tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
+        tv_maze_db_button.setObjectName("dbBtn")
 
         file_name_match_db_button = QPushButton("Attempt to match by filename only")
         file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
@@ -112,7 +117,7 @@ class MatchOptionsWidget(QDialog):
 
         result: dict[QPushButton, list[str]] = {}
 
-        result.update({the_movie_db_button: ["movie"]})
+        result.update({the_movie_db_button: ["movie", "show"]})
         result.update({the_tv_db_button: ["show"]})
         result.update({tv_maze_db_button: ["show"]})
         result.update({file_name_match_db_button: ["movie", "show"]})
@@ -151,5 +156,8 @@ def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:
         response = ApiKeyPromptWidget(json_key, "")
         if response.exec() == QDialog.DialogCode.Accepted:
             return True
+
+    if api_key_config.get(json_key) is not None:
+        return True
 
     return False
