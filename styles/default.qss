@@ -20,3 +20,8 @@ QListWidget#menu::item {
     font-size: 15pt;
     margin-bottom: 0.25em;
 }
+
+QPushButton#dbBtn {
+    qproperty-iconSize: 40px 30px;
+    padding-left: 0.4em;
+}
