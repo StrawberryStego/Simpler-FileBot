@@ -1,10 +1,12 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLabel, QWidget, QHBoxLayout, QLineEdit, \
     QPushButton, QListWidgetItem
 
+from backend.api_key_config import api_key_config
 from backend.core_backend import match_titles_using_db_and_format
 from backend.media_record import MediaRecord
+from pages.core.api_key_prompt_widget import ApiKeyPromptWidget
 from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
@@ -94,6 +96,9 @@ class MatchOptionsWidget(QDialog):
     def retrieve_dictionary_of_db_buttons_with_mappings(self) -> dict[QPushButton, list[str]]:
         """Returns a dictionary of (QPushButton, Whether the database button supports movies and/or shows)"""
         the_movie_db_button = QPushButton("TheMovieDB")
+        the_movie_db_button.clicked.connect(lambda: self.match_with_database_that_requires_api_key(
+            FileNameMatchDB(self.media_records, self.is_tv_series), "the_movie_db"
+        ))
 
         the_tv_db_button = QPushButton("TheTVDB")
 
@@ -131,3 +136,20 @@ class MatchOptionsWidget(QDialog):
             right_box.addItem(list_item)
 
         self.close()
+
+    @Slot()
+    def match_with_database_that_requires_api_key(self, database: Database, json_key: str) -> None:
+        response = check_if_api_key_exists_otherwise_prompt_user(json_key)
+
+        if response:
+            self.match_records_and_populate_output_box(database, self.output_box)
+
+
+def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:
+    """Check if a value for 'json_key' exists in api_keys.json. Prompt the user to enter an api_key if missing."""
+    if api_key_config.get(json_key) == "":
+        response = ApiKeyPromptWidget(json_key, "")
+        if response.exec() == QDialog.DialogCode.Accepted:
+            return True
+
+    return False
