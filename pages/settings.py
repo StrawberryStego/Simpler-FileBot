@@ -6,6 +6,7 @@ from PySide6.QtGui import QGuiApplication, Qt, QDesktopServices
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QListWidget, \
     QHBoxLayout, QToolButton, QStyle, QFileDialog, QListWidgetItem
 
+from backend.api_key_config import delete_and_recreate_api_keys_file
 from backend.settings_backend import (retrieve_theme_from_settings, save_new_theme_to_settings, add_excluded_folder,
                                       retrieve_excluded_folders, remove_excluded_folder,
                                       delete_and_recreate_settings_file, get_settings_file_path)
@@ -110,6 +111,7 @@ class SettingsPage(QWidget):
 
         if reply == QMessageBox.StandardButton.Yes:
             delete_and_recreate_settings_file()
+            delete_and_recreate_api_keys_file()
             self.display_excluded_folders_from_settings()
 
     @Slot()
