@@ -25,3 +25,5 @@ Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind.
 
 ### - [TheMovieDB](https://www.themoviedb.org/) [[Python Library](https://github.com/celiao/tmdbsimple/)]
 <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_1-8ba2ac31f354005783fab473602c34c3f4fd207150182061e425d366e4f34596.svg" alt="Alt Text" width="300">
+
+`Simpler FileBot uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.`
