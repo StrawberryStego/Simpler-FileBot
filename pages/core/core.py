@@ -112,7 +112,7 @@ class CoreRenamerWidget(QWidget):
                     # Replace the invalid matched name with the fix in the right box.
                     self.right_box.item(i).setText(invalid_file_names_and_fixes.get(self.right_box.item(i).text()))
 
-                error_msg += matched_file_name + " → " + fix + "\n"
+                    error_msg += matched_file_name + " → " + fix + "\n"
 
             QApplication.restoreOverrideCursor()
             ErrorPopupWidget(error_msg).exec()

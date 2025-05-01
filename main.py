@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         # Additional window setup.
-        self.setWindowTitle("Simpler FileBot v0.7.0")
+        self.setWindowTitle("Simpler FileBot v0.8.0")
 
         # Set the main application to start at a percentage of the screen's size.
         default_screen_width = int(screen_size_info.width() * DEFAULT_APP_WIDTH_SCALING)
