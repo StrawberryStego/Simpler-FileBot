@@ -103,8 +103,6 @@ class MatchOptionsWidget(QDialog):
         the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.svg")))
         the_movie_db_button.setObjectName("dbBtn")
 
-        the_tv_db_button = QPushButton("TheTVDB")
-
         tv_maze_db_button = QPushButton(" TVMaze ")
         tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
             TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
@@ -118,7 +116,6 @@ class MatchOptionsWidget(QDialog):
         result: dict[QPushButton, list[str]] = {}
 
         result.update({the_movie_db_button: ["movie", "show"]})
-        result.update({the_tv_db_button: ["show"]})
         result.update({tv_maze_db_button: ["show"]})
         result.update({file_name_match_db_button: ["movie", "show"]})
 

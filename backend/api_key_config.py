@@ -22,14 +22,6 @@ def save_new_the_movie_db_key(api_key: str) -> None:
     api_key_config.set("the_movie_db", api_key)
 
 
-def retrieve_the_tv_db_key() -> str:
-    return api_key_config.get("the_tv_db", "")
-
-
-def save_new_the_tv_db_key(api_key: str) -> None:
-    api_key_config.set("the_tv_db", api_key)
-
-
 def retrieve_omdb_key() -> str:
     return api_key_config.get("omdb", "")
 
