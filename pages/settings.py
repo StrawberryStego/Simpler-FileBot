@@ -105,7 +105,8 @@ class SettingsPage(QWidget):
     @Slot()
     def reset_settings(self):
         reply = QMessageBox.question(self, "Reset Settings",
-                                     "Do you want to reset all settings to defaults?",
+                                     "Do you want to reset all settings to defaults?"
+                                     "\n\n[This will delete all API keys]",
                                      QMessageBox.StandardButton.Yes,
                                      QMessageBox.StandardButton.No)
 
