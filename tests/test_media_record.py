@@ -91,3 +91,12 @@ def test_update_title_for_all_records_success():
 
     for media_record in media_records:
         assert media_record.title == "Some Other Name"
+
+
+def test_get_all_season_numbers_success():
+    media_records = [MediaRecord("The.West.Wing.S01E01.mkv"), MediaRecord("The.West.Wing.S03E08.mkv")]
+
+    season_numbers = MediaRecord.get_all_season_numbers(media_records)
+
+    assert 1 in season_numbers
+    assert 3 in season_numbers

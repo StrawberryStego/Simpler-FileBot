@@ -8,6 +8,7 @@ from backend.core_backend import match_titles_using_db_and_format
 from backend.media_record import MediaRecord
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
+from databases.omdb_python_db import OMDBPythonDB
 from databases.themoviedb_python_db import TheMovieDBPythonDB
 from databases.tvmaze_python_db import TVMazePythonDB
 from pages.core.api_key_prompt_widget import ApiKeyPromptWidget
@@ -103,19 +104,27 @@ class MatchOptionsWidget(QDialog):
         the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.svg")))
         the_movie_db_button.setObjectName("dbBtn")
 
+        omdb_db_button = QPushButton(" OMDB ")
+        omdb_db_button.clicked.connect(lambda: self.match_with_database_that_requires_api_key(
+            OMDBPythonDB(self.media_records, self.is_tv_series), "omdb"
+        ))
+        omdb_db_button.setIcon(QIcon(QPixmap("resources/OMDB Logo.png")))
+        omdb_db_button.setObjectName("dbBtn")
+
         tv_maze_db_button = QPushButton(" TVMaze ")
         tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
             TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
         tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
         tv_maze_db_button.setObjectName("dbBtn")
 
-        file_name_match_db_button = QPushButton("Attempt to match by filename only")
+        file_name_match_db_button = QPushButton(" Attempt to match by filename only ")
         file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
             FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
 
         result: dict[QPushButton, list[str]] = {}
 
         result.update({the_movie_db_button: ["movie", "show"]})
+        result.update({omdb_db_button: ["movie", "show"]})
         result.update({tv_maze_db_button: ["show"]})
         result.update({file_name_match_db_button: ["movie", "show"]})
 

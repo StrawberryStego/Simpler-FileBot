@@ -112,3 +112,14 @@ class MediaRecord:
     def update_title_for_all_records(title: str, media_record_list: Iterable["MediaRecord"]):
         for media_record in media_record_list:
             media_record.title = title
+
+    @staticmethod
+    def get_all_season_numbers(media_record_list: Iterable["MediaRecord"]) -> set[int]:
+        season_numbers = {media_record.metadata.get("season") for media_record in media_record_list
+                          if media_record.metadata.get("season") is not None}
+
+        if len(season_numbers) == 0:
+            # If no season numbers are found, default to season 1.
+            return {1}
+
+        return season_numbers
