@@ -1,5 +1,5 @@
-from tvmaze.api import Api
-from tvmaze.models import Model, ResultSet
+from types import SimpleNamespace
+from unittest.mock import patch, MagicMock
 
 from backend.media_record import MediaRecord
 from databases.tvmaze_python_db import get_premiere_year_of_listing, filter_listings_within_one_year_of_target, \
@@ -7,44 +7,63 @@ from databases.tvmaze_python_db import get_premiere_year_of_listing, filter_list
 
 
 def test_get_premiere_year_of_listing_successful():
-    api = Api()
-
-    listing: Model | None = api.search.single_show("The West Wing")
+    # Even though get_premiere_year_of_listing's parameter is (Model | None),
+    # we can use SimpleNamespace since it also has a 'premiered' field. This avoids an API call.
+    listing = SimpleNamespace(premiered="1999-09-22")
 
     assert get_premiere_year_of_listing(listing) == 1999
 
 
 def test_filter_listings_within_one_year_of_target_successful():
-    api = Api()
     target_year = 2005
+    # We can use SimpleNamespace since it also has a 'premiered' field. This avoids an API call.
+    listings = [
+        SimpleNamespace(premiered="2005-03-26"),
+        SimpleNamespace(premiered="2004-04-02"),
+        SimpleNamespace(premiered="1963-11-23"),
+        SimpleNamespace(premiered=None),
+    ]
 
-    listings: ResultSet[Model | None] = api.search.shows("Doctor Who")
+    filtered = filter_listings_within_one_year_of_target(listings, target_year)
 
-    assert len(listings) > 1
-
-    for listing in filter_listings_within_one_year_of_target(listings, target_year):
-        assert abs(get_premiere_year_of_listing(listing) - target_year) <= 1
-
-
-def test_retrieve_media_years_from_db_successful():
-    database = TVMazePythonDB([
-        MediaRecord("The.West.Wing.S01E01.mkv"),
-        MediaRecord("The.West.Wing.S07E01.mkv")],
-        True)
-
-    matched_media_years = database.retrieve_media_years_from_db()
-
-    for year in matched_media_years:
-        assert year == 1999
+    # Check that the listings are all within a year of the target year.
+    assert all(abs(get_premiere_year_of_listing(listing) - target_year) <= 1 for listing in filtered)
+    assert len(filtered) <= len(listings)
 
 
-def test_retrieve_media_titles_from_db_successful():
-    database = TVMazePythonDB([
-        MediaRecord("The.West.Wing.S02E22.mkv"),
-        MediaRecord("The.West.Wing.S04E23.mkv")],
-        True)
+@patch("databases.tvmaze_python_db.Api")
+def test_retrieve_media_years_for_series_from_db_successful(mock_api_cls):
+    mock_api = mock_api_cls.return_value
+    mock_api.search.shows.return_value = [SimpleNamespace(premiered="1999-09-22")]
 
-    matched_media_titles = database.retrieve_media_titles_from_db()
+    db = TVMazePythonDB(
+        [
+            MediaRecord("The.West.Wing.S01E01.mkv"),
+            MediaRecord("The.West.Wing.S07E01.mkv"),
+        ],
+        True,
+    )
 
-    assert matched_media_titles[0] == "Two Cathedrals"
-    assert matched_media_titles[1] == "Twenty Five"
+    assert db.retrieve_media_years_from_db() == [1999, 1999]
+
+
+@patch("databases.tvmaze_python_db.Api")
+def test_retrieve_media_titles_from_db_successful(mock_api_cls):
+    mock_api = mock_api_cls.return_value
+    mock_api.search.shows.return_value = [SimpleNamespace(id=42, premiered="1999-09-22")]
+
+    mock_api.show = MagicMock()
+    mock_api.show.episodes.return_value = [
+        SimpleNamespace(season=2, number=22, name="Two Cathedrals"),
+        SimpleNamespace(season=4, number=23, name="Twenty Five"),
+    ]
+
+    db = TVMazePythonDB(
+        [
+            MediaRecord("The.West.Wing.S02E22.mkv"),
+            MediaRecord("The.West.Wing.S04E23.mkv"),
+        ],
+        True,
+    )
+
+    assert db.retrieve_media_titles_from_db() == ["Two Cathedrals", "Twenty Five"]
