@@ -7,7 +7,7 @@ from databases.database import Database
 
 class TheMovieDBPythonDB(Database):
     """
-    Implementation of Database class to match 'movie' MediaRecords to TMDB, using the tmdbsimple library.
+    Implementation of Database class to match 'movie' & 'series' MediaRecords to TMDB, using the tmdbsimple library.
     TheMovieDB source: https://www.themoviedb.org/.
 
     This DB supports both movies and tv shows since TMDB supports both.
