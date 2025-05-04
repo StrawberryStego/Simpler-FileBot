@@ -4,7 +4,6 @@ api_key_config = JSONConfig(
     "api_keys.json",
     {
         "the_movie_db": "",
-        "the_tv_db": "",
         "omdb": ""
     }
 )
