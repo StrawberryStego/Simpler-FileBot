@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 
 from pages.core.core import CorePage
@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
 
         # Additional window setup.
         self.setWindowTitle("Simpler FileBot v0.9.0")
+        self.setWindowIcon(QIcon(QPixmap("resources/Alternative App Logo.png")))
 
         # Set the main application to start at a percentage of the screen's size.
         default_screen_width = int(screen_size_info.width() * DEFAULT_APP_WIDTH_SCALING)
