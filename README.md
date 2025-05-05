@@ -32,3 +32,5 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 
 ### - [OMDB](https://www.omdb.org/en/us) [[Python Library](https://github.com/dgilland/omdb.py)]
 <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Omdb-logo.png" alt="Alt Text" width="height=40">
+
+### `Simpler FileBot also supports matching solely using the guessit library.`
