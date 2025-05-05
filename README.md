@@ -1,7 +1,9 @@
 # Simpler FileBot 🗃️
 This is a batch file-renaming GUI tool for movies and tv shows.
 
-Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind.
+`Simpler FileBot is built using PySide6 and is designed with Windows 11 in mind!`
+
+*Special thanks* to [guessit](https://github.com/guessit-io/guessit) for analyzing and providing the metadata for filenames.
 
 ## Requirements
 - [Python 3.9+](https://www.python.org/downloads/) (Latest Version Recommended)
