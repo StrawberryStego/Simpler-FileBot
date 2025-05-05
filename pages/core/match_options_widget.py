@@ -18,8 +18,7 @@ from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 # pylint: disable=too-many-locals
 class MatchOptionsWidget(QDialog):
     """
-    Popup to allow users to see matched information about their files.
-    Users can update any data mismatches and choose a DB to match from.
+    Popup to allow users to choose a movie or series database to match to.
     """
 
     def __init__(self, files_widget: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
