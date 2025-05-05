@@ -63,14 +63,27 @@ class MatchOptionsWidget(QDialog):
 
             # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.
             title_label = QLabel("Series Title:")
-            input_update_container = QWidget()
-            input_update_container_layout = QHBoxLayout(input_update_container)
-            input_box = QLineEdit()
-            input_box.setText(series_title)
-            input_box.textEdited.connect(lambda:
-                                         MediaRecord.update_title_for_all_records(
-                                             input_box.text(), media_records))
-            input_update_container_layout.addWidget(input_box)
+            title_update_container = QWidget()
+            title_update_container_layout = QHBoxLayout(title_update_container)
+            title_input_box = QLineEdit()
+            title_input_box.setText(series_title)
+            title_input_box.textEdited.connect(lambda:
+                                               MediaRecord.update_title_for_all_records(
+                                                   title_input_box.text(), media_records))
+            title_update_container_layout.addWidget(title_input_box)
+
+            # Add UI and logic to set a custom year for a series.
+            year_label = QLabel("Year:")
+            year_update_container = QWidget()
+            year_update_container_layout = QHBoxLayout(year_update_container)
+            year_input_box = QLineEdit()
+            year_input_box.setPlaceholderText("[auto]")
+            if media_records[0].year is not None:
+                year_input_box.setText(str(media_records[0].year))
+            year_input_box.textEdited.connect(lambda:
+                                              MediaRecord.update_year_for_all_records(
+                                                  year_input_box.text(), media_records))
+            year_update_container_layout.addWidget(year_input_box)
 
             database_buttons_widget = QWidget()
             database_buttons_layout = QHBoxLayout(database_buttons_widget)
@@ -79,7 +92,9 @@ class MatchOptionsWidget(QDialog):
                     database_buttons_layout.addWidget(button)
 
             layout.addWidget(title_label)
-            layout.addWidget(input_update_container)
+            layout.addWidget(title_update_container)
+            layout.addWidget(year_label)
+            layout.addWidget(year_update_container)
             layout.addWidget(database_buttons_widget)
 
         # Contains only movies.

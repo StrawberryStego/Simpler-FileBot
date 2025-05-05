@@ -114,6 +114,17 @@ class MediaRecord:
             media_record.title = title
 
     @staticmethod
+    def update_year_for_all_records(year: str, media_record_list: Iterable["MediaRecord"]):
+        # Validate that the input string can be converted to an int.
+        try:
+            int_year = int(year.strip())
+        except (ValueError, TypeError, AttributeError):
+            return  # Input isn't an int‑like string; leave records untouched.
+
+        for media_record in media_record_list:
+            media_record.year = int_year
+
+    @staticmethod
     def get_all_season_numbers(media_record_list: Iterable["MediaRecord"]) -> set[int]:
         season_numbers = {media_record.metadata.get("season") for media_record in media_record_list
                           if media_record.metadata.get("season") is not None}

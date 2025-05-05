@@ -93,6 +93,14 @@ def test_update_title_for_all_records_success():
         assert media_record.title == "Some Other Name"
 
 
+def test_update_year_for_all_records_success():
+    media_records = [MediaRecord("Doctor.Who.S01E01.mkv")]
+
+    MediaRecord.update_year_for_all_records("2005", media_records)
+
+    assert media_records[0].year == 2005
+
+
 def test_get_all_season_numbers_success():
     media_records = [MediaRecord("The.West.Wing.S01E01.mkv"), MediaRecord("The.West.Wing.S03E08.mkv")]
 
