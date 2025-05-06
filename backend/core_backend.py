@@ -83,5 +83,10 @@ def perform_file_renaming(old_file_names: list[str], new_file_names: list[str]):
                          f"new_file_names has {len(new_file_names)} files...?")
 
     for old_file_name, new_file_name in zip(old_file_names, new_file_names):
-        # Raises an OSError if os.rename() fails.
-        os.rename(old_file_name, new_file_name)
+        # Other generic OSErrors are propagated to the caller.
+        try:
+            os.rename(old_file_name, new_file_name)
+        except PermissionError:
+            # Handle only the specific case where a file is being held by another process (Windows specific?).
+            # Current handling is just ignoring the specific file and moving onto the next one.
+            continue
