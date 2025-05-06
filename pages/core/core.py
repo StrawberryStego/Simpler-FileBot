@@ -60,6 +60,12 @@ class CoreRenamerWidget(QWidget):
         self.left_box.currentRowChanged.connect(self.right_box.setCurrentRow)
         self.right_box.currentRowChanged.connect(self.left_box.setCurrentRow)
 
+        # Synchronize scrolling for the left and right boxes.
+        self.left_box.verticalScrollBar().valueChanged.connect(lambda position:
+                                                               self.right_box.verticalScrollBar().setValue(position))
+        self.right_box.verticalScrollBar().valueChanged.connect(lambda position:
+                                                                self.left_box.verticalScrollBar().setValue(position))
+
         # Opens a QDialog widget for user option selection when match button is clicked.
         self.match_button.clicked.connect(self.open_match_options_widget)
         # Rename files once files have been matched using a database and rename button has been clicked.
