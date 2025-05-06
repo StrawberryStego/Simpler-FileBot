@@ -30,3 +30,17 @@ QPushButton#dbBtn {
     qproperty-iconSize: 40px 30px;
     padding-left: 0.4em;
 }
+
+#formats QTextBrowser {
+    font-size: 12pt;
+}
+
+#formats QLineEdit {
+    padding: 0.5em;
+    font-size: 12pt;
+}
+
+#formats QPushButton {
+    padding: 0.25em;
+    font-size: 12pt;
+}
