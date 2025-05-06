@@ -30,10 +30,9 @@ class SettingsPage(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("settings")
 
         settings_page_layout = QVBoxLayout(self)
-
-        title = QLabel("Settings")
 
         # Theme Selection UI Components.
         theme_label = QLabel("Select Theme:")
@@ -77,7 +76,6 @@ class SettingsPage(QWidget):
         set_color_theme_on_startup()
         self.display_excluded_folders_from_settings()
 
-        settings_page_layout.addWidget(title)
         settings_page_layout.addWidget(theme_label)
         settings_page_layout.addWidget(self.theme_options)
         settings_page_layout.addWidget(folder_exclusion_label)
