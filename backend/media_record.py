@@ -76,6 +76,7 @@ class MediaRecord:
 
         # Setting commonly used values, otherwise, get from metadata.
         self.media_type: str | None = self.metadata.get("type")
+
         # self.title refers to the 'total' title. For movies, it's the movie title. For episodes, it's the series title.
         self.title: str | None = None
         raw_title: str | list | None = self.metadata.get("title")
@@ -86,6 +87,26 @@ class MediaRecord:
             self.title = raw_title
 
         self.year: int | None = self.metadata.get("year")
+
+        # Attempt to fill in 'season' or 'episode' if missing (This should not affect movies).
+        self._enrich_metadata_via_file_name()
+
+    def _enrich_metadata_via_file_name(self):
+        """
+        There are edge cases where the name of the folder (Which is used in guessing metadata) stops the
+        episode number or season number of a series episode from being parsed correctly.
+
+        This method attempts to analyze the metadata for a series episode using only the file name if
+        'season' or 'episode' is missing from the MediaRecord and fills them in."""
+        file_name_metadata: dict = guessit(self.file_name)
+
+        if self.metadata.get("season") is None:
+            if file_name_metadata.get("season") is not None:
+                self.metadata["season"] = file_name_metadata.get("season")
+
+        if self.metadata.get("episode") is None:
+            if file_name_metadata.get("episode") is not None:
+                self.metadata["episode"] = file_name_metadata.get("episode")
 
     def __str__(self):
         return self.file_name

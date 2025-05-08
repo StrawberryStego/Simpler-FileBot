@@ -108,3 +108,9 @@ def test_get_all_season_numbers_success():
 
     assert 1 in season_numbers
     assert 3 in season_numbers
+
+
+def test_season_number_missing_episode_number_still_recognized():
+    media_record = MediaRecord("Chainsaw.Man.2022.S01.TrueHD.5.1/Chainsaw Man - 01 - Dog & Chainsaw.mkv")
+
+    assert media_record.metadata["episode"] == 1
