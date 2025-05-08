@@ -77,7 +77,14 @@ class MediaRecord:
         # Setting commonly used values, otherwise, get from metadata.
         self.media_type: str | None = self.metadata.get("type")
         # self.title refers to the 'total' title. For movies, it's the movie title. For episodes, it's the series title.
-        self.title: str | None = self.metadata.get("title")
+        self.title: str | None = None
+        raw_title: str | list | None = self.metadata.get("title")
+        # If there were multiple titles found, just join them together with a space.
+        if isinstance(raw_title, list):
+            self.title = " ".join(map(str, raw_title))
+        else:
+            self.title = raw_title
+
         self.year: int | None = self.metadata.get("year")
 
     def __str__(self):
