@@ -38,7 +38,7 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
                 "series_name": media_record.title,
                 "year": matched_years[i],
                 "season_number": f"{int(raw_season_number):02d}" if raw_season_number is not None else None,
-                "episode_number": f"{int(raw_episode_number):02d}" if raw_season_number is not None else None,
+                "episode_number": f"{int(raw_episode_number):02d}" if raw_episode_number is not None else None,
                 "episode_title": matched_titles[i]
             }
 
