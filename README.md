@@ -8,17 +8,18 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 ## Requirements
 - [Python 3.9+](https://www.python.org/downloads/) (Latest Version Recommended)
 
-## Installation Methods
+## Installation
+[Download Source Code](https://github.com/StrawberryStego/Simpler-FileBot/releases)
 
-### Clone & Run
-- `git clone https://github.com/StrawberryStego/Simpler-FileBot`
+### Python
 
 - `pip install -r requirements.txt [Optionally, make a virtual environment]`
 
 - `py main.py`
 
-### Releases
-- [Simpler FileBot Releases](https://github.com/StrawberryStego/Simpler-FileBot/releases)
+### Windows
+- `Run install_dependencies.bat`
+- `Use launcher.bat to open Simpler FileBot`
 
 ## Supported Databases
 `Simpler FileBot uses the following databases/APIs but is not endorsed, certified, or otherwise approved.`
