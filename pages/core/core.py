@@ -3,7 +3,7 @@ import os.path
 from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QApplication, QFileDialog
+    QApplication, QFileDialog, QDialog
 
 from backend.core_backend import (get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
@@ -84,11 +84,14 @@ class CoreRenamerWidget(QWidget):
         Opens a MatchOptionsWidget if there are input files and passes instance of CoreRenamerWidget
         in as parent for sizing/positioning as well as the left input box (QListWidget).
         """
+        # Nothing to match... return.
+        if self.left_box.count() == 0:
+            return
 
-        if self.left_box.count() > 0:
-            match_options_widget = MatchOptionsWidget(self.left_box, self.right_box)
-            match_options_widget.exec()
+        # Open a MatchOptionsWidget to allow users to select a database option.
+        return_code = MatchOptionsWidget(self.left_box, self.right_box).exec()
 
+        if return_code == QDialog.DialogCode.Accepted:
             # Enable the rename button once files are matched.
             self.rename_button.setEnabled(True)
             # Remove any old cached last_renamed files from previous renames.
