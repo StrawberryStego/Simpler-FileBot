@@ -160,7 +160,7 @@ class MatchOptionsWidget(QDialog):
             list_item.setText(title)
             right_box.addItem(list_item)
 
-        self.close()
+        self.accept()
 
     @Slot()
     def match_with_database_that_requires_api_key(self, database: Database, json_key: str) -> None:
