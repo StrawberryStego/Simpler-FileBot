@@ -101,6 +101,8 @@ class CoreRenamerWidget(QWidget):
     def rename_files_if_allowed(self):
         """Rename files from input box to names in output box if they're valid."""
         if not self.is_rename_allowed():
+            self.rename_button.setEnabled(False)
+            self.undo_button.setEnabled(False)
             return
 
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
@@ -162,8 +164,11 @@ class CoreRenamerWidget(QWidget):
             self.undo_button.setEnabled(False)
 
     def is_rename_allowed(self) -> bool:
-        """Each record in the input box must have a matching title to rename to."""
-        return self.left_box.count() == self.right_box.count()
+        """
+        Each record in the input box must have a matching title to rename to.
+        Moreover, there must actually be files to rename, i.e., input box actually has input.
+        """
+        return self.left_box.count() == self.right_box.count() and self.left_box.count() > 0
 
     def rename_files(self):
         """
