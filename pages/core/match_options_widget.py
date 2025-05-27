@@ -44,6 +44,26 @@ class MatchOptionsWidget(QDialog):
 
         # Uses a thread pool for ease when querying database (Which can be slow).
         self._thread_pool = QThreadPool()
+        # Used to disable closing this window when database calls are happening.
+        self._busy = False
+
+    def closeEvent(self, event):
+        """
+        Disallow closing the MatchOptionsWidget with the X button, Alt-F4, or the window manager
+        if the application is busy doing a database query.
+        """
+        if self._busy:
+            event.ignore()
+        else:
+            super().closeEvent(event)
+
+    def reject(self):
+        """
+        Disallow closing the MatchOptionsWidget with the escape key or programmatically
+        if the application is busy doing a database query.
+        """
+        if not self._busy:
+            super().reject()
 
     def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
         """Populates the layout with UI components based on MediaRecords."""
@@ -151,14 +171,15 @@ class MatchOptionsWidget(QDialog):
     def start_match(self, database: Database):
         # Clear output box before populating it.
         self.output_box.clear()
-        # Block UI clicks while the database call is running.
-        self.setEnabled(False)
 
         database_worker = DatabaseWorker(database)
         database_worker.finished.connect(self.populate_output_box)
 
+        # Block UI clicks while the database call is running.
+        self.setEnabled(False)
         # Change the cursor to a waiting cursor and restore it when the output box receives the matched titles.
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+        self._busy = True
         self._thread_pool.start(database_worker)
 
     @Slot(list)
@@ -176,6 +197,7 @@ class MatchOptionsWidget(QDialog):
 
         self.setEnabled(True)
         QApplication.restoreOverrideCursor()
+        self._busy = False
         # Close MatchOptionsWidget with an accept code.
         self.accept()
 
