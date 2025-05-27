@@ -45,7 +45,7 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
             series_format = retrieve_series_format_from_formats_file()
 
             formatted_title = create_formatted_title(series_format, series_context)
-            formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
+            formatted_titles.append(f"{formatted_title}.{media_record.container}")
         else:
             movie_context: dict = {
                 "movie_name": matched_titles[i],
@@ -55,7 +55,7 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
             movie_format = retrieve_movies_format_from_formats_file()
 
             formatted_title = create_formatted_title(movie_format, movie_context)
-            formatted_titles.append(f"{formatted_title}.{media_record.metadata.get('container')}")
+            formatted_titles.append(f"{formatted_title}.{media_record.container}")
 
     return formatted_titles
 
