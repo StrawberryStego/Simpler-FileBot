@@ -24,6 +24,16 @@ def test_create_episode_without_series_name_in_file_name_successfully():
     assert media_record.title == "The West Wing"
 
 
+def test_container_grabbed_from_mkv_file_is_mkv():
+    media_record = MediaRecord("C:/Stuff Ultra/Movies/Iron Man.mkv")
+    assert media_record.container == "mkv"
+
+
+def test_container_grabbed_from_txt_file_is_txt():
+    media_record = MediaRecord("C:/Movies/Interstellar Sub.txt")
+    assert media_record.container == "txt"
+
+
 def test_no_filename_sole_metadata_is_type():
     media_record = MediaRecord("")
     assert len(media_record.metadata) == 1
