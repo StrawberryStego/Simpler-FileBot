@@ -8,6 +8,12 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 ## Requirements
 - [Python 3.9+](https://www.python.org/downloads/) (Latest Version Recommended)
 
+## Modern PySide6 UI
+<img src="https://github.com/user-attachments/assets/5168d8e2-c09d-46ba-99f4-dbcf78b573a2" width="75%">
+
+## Light & Dark Mode
+<img src="https://github.com/user-attachments/assets/a5d634e1-1861-4c98-b5e3-9d962c2afa35" width="75%">
+
 ## Installation
 [Download Source Code](https://github.com/StrawberryStego/Simpler-FileBot/releases)
 
