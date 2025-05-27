@@ -1,10 +1,10 @@
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Qt, Slot, QThreadPool
 from PySide6.QtGui import QColor, QIcon, QPixmap
 from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLabel, QWidget, QHBoxLayout, QLineEdit, \
     QPushButton, QListWidgetItem
 
 from backend.api_key_config import api_key_config
-from backend.core_backend import match_titles_using_db_and_format
+from backend.database_worker import DatabaseWorker
 from backend.media_record import MediaRecord
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
@@ -19,6 +19,7 @@ from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 class MatchOptionsWidget(QDialog):
     """
     Popup to allow users to choose a movie or series database to match to.
+    Handles database matching and populating the output box with matched file names.
     """
 
     def __init__(self, files_widget: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
@@ -40,6 +41,9 @@ class MatchOptionsWidget(QDialog):
         self.is_tv_series = MediaRecord.is_tv_series(self.media_records)
 
         self.populate_match_options_layout(layout, self.media_records)
+
+        # Uses a thread pool for ease when querying database (Which can be slow).
+        self._thread_pool = QThreadPool()
 
     def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
         """Populates the layout with UI components based on MediaRecords."""
@@ -126,14 +130,14 @@ class MatchOptionsWidget(QDialog):
         omdb_db_button.setObjectName("dbBtn")
 
         tv_maze_db_button = QPushButton(" TVMaze ")
-        tv_maze_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
-            TVMazePythonDB(self.media_records, self.is_tv_series), self.output_box))
+        tv_maze_db_button.clicked.connect(lambda: self.start_match(
+            TVMazePythonDB(self.media_records, self.is_tv_series)))
         tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
         tv_maze_db_button.setObjectName("dbBtn")
 
         file_name_match_db_button = QPushButton(" Attempt to match by filename only ")
-        file_name_match_db_button.clicked.connect(lambda: self.match_records_and_populate_output_box(
-            FileNameMatchDB(self.media_records, self.is_tv_series), self.output_box))
+        file_name_match_db_button.clicked.connect(lambda: self.start_match(
+            FileNameMatchDB(self.media_records, self.is_tv_series)))
 
         result: dict[QPushButton, list[str]] = {}
 
@@ -144,11 +148,19 @@ class MatchOptionsWidget(QDialog):
 
         return result
 
-    def match_records_and_populate_output_box(self, database: Database, right_box: QListWidget):
+    def start_match(self, database: Database):
         # Clear output box before populating it.
-        right_box.clear()
+        self.output_box.clear()
+        # Block UI clicks while the database call is running.
+        self.setEnabled(False)
 
-        matched_media_titles = match_titles_using_db_and_format(database)
+        database_worker = DatabaseWorker(database)
+        database_worker.finished.connect(self.populate_output_box)
+
+        self._thread_pool.start(database_worker)
+
+    @Slot(list)
+    def populate_output_box(self, matched_media_titles: list[str]):
         for title in matched_media_titles:
             list_item = QListWidgetItem()
 
@@ -158,8 +170,10 @@ class MatchOptionsWidget(QDialog):
                 list_item.setBackground(QColor(255, 80, 80))
 
             list_item.setText(title)
-            right_box.addItem(list_item)
+            self.output_box.addItem(list_item)
 
+        self.setEnabled(True)
+        # Close MatchOptionsWidget with an accept code.
         self.accept()
 
     @Slot()
@@ -167,7 +181,7 @@ class MatchOptionsWidget(QDialog):
         response = check_if_api_key_exists_otherwise_prompt_user(json_key)
 
         if response:
-            self.match_records_and_populate_output_box(database, self.output_box)
+            self.start_match(database)
 
 
 def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:
