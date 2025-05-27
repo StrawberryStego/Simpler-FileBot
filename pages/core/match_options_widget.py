@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Slot, QThreadPool
-from PySide6.QtGui import QColor, QIcon, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPixmap, QCursor
 from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLabel, QWidget, QHBoxLayout, QLineEdit, \
-    QPushButton, QListWidgetItem
+    QPushButton, QListWidgetItem, QApplication
 
 from backend.api_key_config import api_key_config
 from backend.database_worker import DatabaseWorker
@@ -157,6 +157,8 @@ class MatchOptionsWidget(QDialog):
         database_worker = DatabaseWorker(database)
         database_worker.finished.connect(self.populate_output_box)
 
+        # Change the cursor to a waiting cursor and restore it when the output box receives the matched titles.
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self._thread_pool.start(database_worker)
 
     @Slot(list)
@@ -173,6 +175,7 @@ class MatchOptionsWidget(QDialog):
             self.output_box.addItem(list_item)
 
         self.setEnabled(True)
+        QApplication.restoreOverrideCursor()
         # Close MatchOptionsWidget with an accept code.
         self.accept()
 
