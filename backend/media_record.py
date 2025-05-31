@@ -92,8 +92,8 @@ class MediaRecord:
         # Attempt to fill in 'season' or 'episode' if missing (This should not affect movies).
         self._enrich_metadata_via_file_name()
 
-        # Guessit does not work well with .txt files so, we'll grab it directly from the filename if missing.
-        self.container: str = self.metadata.get('container', Path(file_path).suffix.lstrip("."))
+        # Store the container from the original filename.
+        self.container: str = Path(file_path).suffix.lstrip(".")
 
     def _enrich_metadata_via_file_name(self):
         """
