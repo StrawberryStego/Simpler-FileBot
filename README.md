@@ -19,7 +19,7 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 
 ### Python
 
-- `pip install -r requirements.txt [Optionally, make a virtual environment]`
+- `pip install -r requirements.txt`
 
 - `py main.py`
 
