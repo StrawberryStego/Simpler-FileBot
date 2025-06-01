@@ -215,8 +215,8 @@ def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:
         response = ApiKeyPromptWidget(json_key, "")
         if response.exec() == QDialog.DialogCode.Accepted:
             return True
-
-    if api_key_config.get(json_key) is not None:
+    elif api_key_config.get(json_key) is not None:
+        # Return true if the key is not blank.
         return True
 
     return False
