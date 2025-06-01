@@ -18,10 +18,15 @@ class ApiKeyPromptWidget(QDialog):
         self.edit.setPlaceholderText("[API Key]")
 
         button_layout = QHBoxLayout()
+
         cancel_button = QPushButton("Cancel")
+        cancel_button.setObjectName("cancel_button")
         cancel_button.clicked.connect(self.reject)
+
         save_button = QPushButton("Save")
+        save_button.setObjectName("save_button")
         save_button.clicked.connect(self.save_api_key_and_close)
+
         button_layout.addWidget(cancel_button)
         button_layout.addWidget(save_button)
 
