@@ -52,6 +52,11 @@ class JSONConfig:
         # Create the parent directories of a json file if missing.
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Fixes issue #58. Python installations from the Microsoft Store does some funky directory changes that
+        # moves the installation to a different local cache *silently*. Using resolve() sets self.path to the
+        # actual location that Microsoft Store's Python puts our installations.
+        self.path = self.path.resolve(strict=False)
+
         # Create the json file if missing with default values.
         if not self.path.is_file():
             with self.path.open("w", encoding="utf-8") as file:
