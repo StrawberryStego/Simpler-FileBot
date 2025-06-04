@@ -118,7 +118,7 @@ class MatchOptionsWidget(QDialog):
         database_buttons_widget = QWidget()
         database_buttons_layout = QHBoxLayout(database_buttons_widget)
         for button, supported_media_type in database_specs.items():
-            if supported_media_type.count("show") == 1:
+            if "show" in supported_media_type:
                 database_buttons_layout.addWidget(button)
 
         episode_matching_layout.addWidget(title_label)
@@ -140,7 +140,7 @@ class MatchOptionsWidget(QDialog):
         database_buttons_widget = QWidget()
         database_buttons_layout = QHBoxLayout(database_buttons_widget)
         for button, supported_media_type in database_specs.items():
-            if supported_media_type.count("movie") == 1:
+            if "movie" in supported_media_type:
                 database_buttons_layout.addWidget(button)
 
         movie_matching_layout.addWidget(label)
@@ -244,8 +244,8 @@ class MatchOptionsWidget(QDialog):
 def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:
     """Check if a value for 'json_key' exists in api_keys.json. Prompt the user to enter an api_key if missing."""
     if api_key_config.get(json_key) == "":
-        response = ApiKeyPromptWidget(json_key, "")
-        if response.exec() == QDialog.DialogCode.Accepted:
+        response = ApiKeyPromptWidget(json_key, "").exec()
+        if response == QDialog.DialogCode.Accepted:
             return True
     elif api_key_config.get(json_key) is not None:
         # Return true if the key is not blank.
