@@ -67,71 +67,88 @@ class MatchOptionsWidget(QDialog):
 
     def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
         """Populates the layout with UI components based on MediaRecords."""
-        database_specs = self.retrieve_dictionary_of_db_buttons_with_mappings()
-
-        # Contains a mix of movies and shows.
+        # Display an error if the input contains a mix of movie and TV show files.
         if MediaRecord.has_movies(media_records) and MediaRecord.has_episodes(media_records):
-            error_label = QLabel("Cannot rename both movies and tv series at the same time!")
-            layout.addWidget(error_label)
+            layout.addWidget(QLabel("Cannot rename both movies and tv series at the same time!"))
+            return
 
-        # Contains only episodes but there seems to be multiple tv shows.
-        elif not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) > 1:
-            error_label = QLabel("Cannot rename multiple tv series at the same time!")
-            layout.addWidget(error_label)
+        # Display an error if there are multiple TV series for an input list of episodes.
+        if not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) > 1:
+            layout.addWidget(QLabel("Cannot rename multiple tv series at the same time!"))
+            return
 
         # Contains only episodes.
-        elif not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) <= 1:
-            unique_titles = MediaRecord.get_unique_titles(media_records)
-            series_title = unique_titles.pop() if unique_titles else "Could not match title!"
-
-            # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.
-            title_label = QLabel("Series Title:")
-            title_update_container = QWidget()
-            title_update_container_layout = QHBoxLayout(title_update_container)
-            title_input_box = QLineEdit()
-            title_input_box.setText(series_title)
-            title_input_box.textEdited.connect(lambda:
-                                               MediaRecord.update_title_for_all_records(
-                                                   title_input_box.text(), media_records))
-            title_update_container_layout.addWidget(title_input_box)
-
-            # Add UI and logic to set a custom year for a series.
-            year_label = QLabel("Year:")
-            year_update_container = QWidget()
-            year_update_container_layout = QHBoxLayout(year_update_container)
-            year_input_box = QLineEdit()
-            year_input_box.setPlaceholderText("[auto]")
-            if media_records[0].year is not None:
-                year_input_box.setText(str(media_records[0].year))
-            year_input_box.textEdited.connect(lambda:
-                                              MediaRecord.update_year_for_all_records(
-                                                  year_input_box.text(), media_records))
-            year_update_container_layout.addWidget(year_input_box)
-
-            database_buttons_widget = QWidget()
-            database_buttons_layout = QHBoxLayout(database_buttons_widget)
-            for button, supported_media_type in database_specs.items():
-                if supported_media_type.count("show") == 1:
-                    database_buttons_layout.addWidget(button)
-
-            layout.addWidget(title_label)
-            layout.addWidget(title_update_container)
-            layout.addWidget(year_label)
-            layout.addWidget(year_update_container)
-            layout.addWidget(database_buttons_widget)
-
+        if not MediaRecord.has_movies(media_records):
+            layout.addLayout(self.create_layout_for_episode_matching(media_records))
         # Contains only movies.
         elif not MediaRecord.has_episodes(media_records):
-            label = QLabel(f"Got {len(media_records)} movie files!")
+            layout.addLayout(self.create_layout_for_movie_matching(media_records))
 
-            database_buttons_widget = QWidget()
-            database_buttons_layout = QHBoxLayout(database_buttons_widget)
-            for button, supported_media_type in database_specs.items():
-                if supported_media_type.count("movie") == 1:
-                    database_buttons_layout.addWidget(button)
+    def create_layout_for_episode_matching(self, media_records: list[MediaRecord]) -> QVBoxLayout:
+        # Mapping of database buttons to the type of media they support.
+        database_specs = self.retrieve_dictionary_of_db_buttons_with_mappings()
 
-            layout.addWidget(label)
-            layout.addWidget(database_buttons_widget)
+        episode_matching_layout = QVBoxLayout()
+
+        unique_titles = MediaRecord.get_unique_titles(media_records)
+        series_title = unique_titles.pop() if unique_titles else "Could not match title!"
+
+        # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.
+        title_label = QLabel("Series Title:")
+        title_update_container = QWidget()
+        title_update_container_layout = QHBoxLayout(title_update_container)
+        title_input_box = QLineEdit()
+        title_input_box.setText(series_title)
+        title_input_box.textEdited.connect(lambda:
+                                           MediaRecord.update_title_for_all_records(
+                                               title_input_box.text(), media_records))
+        title_update_container_layout.addWidget(title_input_box)
+
+        # Add UI and logic to set a custom year for a series.
+        year_label = QLabel("Year:")
+        year_update_container = QWidget()
+        year_update_container_layout = QHBoxLayout(year_update_container)
+        year_input_box = QLineEdit()
+        year_input_box.setPlaceholderText("[auto]")
+        if media_records[0].year is not None:
+            year_input_box.setText(str(media_records[0].year))
+        year_input_box.textEdited.connect(lambda:
+                                          MediaRecord.update_year_for_all_records(
+                                              year_input_box.text(), media_records))
+        year_update_container_layout.addWidget(year_input_box)
+
+        database_buttons_widget = QWidget()
+        database_buttons_layout = QHBoxLayout(database_buttons_widget)
+        for button, supported_media_type in database_specs.items():
+            if supported_media_type.count("show") == 1:
+                database_buttons_layout.addWidget(button)
+
+        episode_matching_layout.addWidget(title_label)
+        episode_matching_layout.addWidget(title_update_container)
+        episode_matching_layout.addWidget(year_label)
+        episode_matching_layout.addWidget(year_update_container)
+        episode_matching_layout.addWidget(database_buttons_widget)
+
+        return episode_matching_layout
+
+    def create_layout_for_movie_matching(self, media_records: list[MediaRecord]) -> QVBoxLayout:
+        # Mapping of database buttons to the type of media they support.
+        database_specs = self.retrieve_dictionary_of_db_buttons_with_mappings()
+
+        movie_matching_layout = QVBoxLayout()
+
+        label = QLabel(f"Got {len(media_records)} movie files!")
+
+        database_buttons_widget = QWidget()
+        database_buttons_layout = QHBoxLayout(database_buttons_widget)
+        for button, supported_media_type in database_specs.items():
+            if supported_media_type.count("movie") == 1:
+                database_buttons_layout.addWidget(button)
+
+        movie_matching_layout.addWidget(label)
+        movie_matching_layout.addWidget(database_buttons_widget)
+
+        return movie_matching_layout
 
     def retrieve_dictionary_of_db_buttons_with_mappings(self) -> dict[QPushButton, list[str]]:
         """Returns a dictionary of (QPushButton, Whether the database button supports movies and/or shows)"""
