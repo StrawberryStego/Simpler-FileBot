@@ -6,6 +6,7 @@ class ErrorPopupWidget(QDialog):
 
     def __init__(self, error_msg: str, parent=None):
         super().__init__(parent)
+        self.setWindowTitle("Simpler FileBot Error")
 
         error_popup_layout = QVBoxLayout(self)
 
