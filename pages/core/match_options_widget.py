@@ -151,14 +151,14 @@ class MatchOptionsWidget(QDialog):
     def retrieve_dictionary_of_db_buttons_with_mappings(self) -> dict[QPushButton, list[str]]:
         """Returns a dictionary of (QPushButton, Whether the database button supports movies and/or shows)"""
         the_movie_db_button = QPushButton(" TheMovieDB ")
-        the_movie_db_button.clicked.connect(lambda: self.match_with_database_that_requires_api_key(
+        the_movie_db_button.clicked.connect(lambda: self.start_match(
             TheMovieDBPythonDB(self.media_records, self.is_tv_series), "the_movie_db"
         ))
         the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.svg")))
         the_movie_db_button.setObjectName("dbBtn")
 
         omdb_db_button = QPushButton(" OMDB ")
-        omdb_db_button.clicked.connect(lambda: self.match_with_database_that_requires_api_key(
+        omdb_db_button.clicked.connect(lambda: self.start_match(
             OMDBPythonDB(self.media_records, self.is_tv_series), "omdb"
         ))
         omdb_db_button.setIcon(QIcon(QPixmap("resources/OMDB Logo.png")))
@@ -183,7 +183,21 @@ class MatchOptionsWidget(QDialog):
 
         return result
 
-    def start_match(self, database: Database):
+    def start_match(self, database: Database, json_key: str = None):
+        """
+        Starts a non-blocking database query to match our MediaRecords.
+
+        :param Database database: Database class implementation.
+        :param str json_key: (Optional) Name of the database key (See api_key_config.py).
+        """
+        # If a json_key is not none, that means that the database requires an API key. We should handle that.
+        if json_key is not None:
+            response = check_if_api_key_exists_otherwise_prompt_user(json_key)
+
+            # Return if the API key prompt was not completed.
+            if not response:
+                return
+
         # Block UI clicks while the database call is running.
         self.setEnabled(False)
         # Change the cursor to a waiting cursor and restore it when the output box receives the matched titles.
@@ -225,13 +239,6 @@ class MatchOptionsWidget(QDialog):
         QApplication.restoreOverrideCursor()
         self._busy = False
         self.close()
-
-    @Slot()
-    def match_with_database_that_requires_api_key(self, database: Database, json_key: str) -> None:
-        response = check_if_api_key_exists_otherwise_prompt_user(json_key)
-
-        if response:
-            self.start_match(database)
 
 
 def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:

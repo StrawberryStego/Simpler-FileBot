@@ -16,12 +16,13 @@ class TheMovieDBPythonDB(Database):
     def __init__(self, media_records: list[MediaRecord], is_tv_series: bool = False):
         super().__init__(media_records, is_tv_series)
 
-        retrieved_api_key = retrieve_the_movie_db_key()
-        tmdb.API_KEY = retrieved_api_key
         # Timeout for connect & request after 5 seconds.
         tmdb.REQUESTS_TIMEOUT = 5
 
     def retrieve_media_titles_from_db(self) -> list[str | None]:
+        if tmdb.API_KEY is None:
+            tmdb.API_KEY = retrieve_the_movie_db_key()
+
         matched_titles: list[str | None] = []
 
         if self.is_tv_series:
@@ -61,6 +62,9 @@ class TheMovieDBPythonDB(Database):
         return matched_titles
 
     def retrieve_media_years_from_db(self) -> list[int | None]:
+        if tmdb.API_KEY is None:
+            tmdb.API_KEY = retrieve_the_movie_db_key()
+
         # Return the 'series' release year.
         if self.is_tv_series:
             # Simply return the year if it already exists for a series.
