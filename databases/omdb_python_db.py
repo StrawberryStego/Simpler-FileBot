@@ -17,12 +17,14 @@ class OMDBPythonDB(Database):
     def __init__(self, media_records: list[MediaRecord], is_tv_series: bool = False):
         super().__init__(media_records, is_tv_series)
 
-        omdb_api_key = retrieve_omdb_key()
-        self.omdb_client = OMDBClient(apikey=omdb_api_key)
-        # Timeout requests after 5 seconds.
-        self.omdb_client.set_default('timeout', 5)
+        # Lazy build it since the API key might not be set.
+        self.omdb_client: OMDBClient | None = None
 
     def retrieve_media_titles_from_db(self) -> list[str | None]:
+        if self.omdb_client is None:
+            self.omdb_client = OMDBClient(apikey=retrieve_omdb_key())
+            self.omdb_client.set_default('timeout', 5)
+
         matched_titles: list[str | None] = []
 
         if self.is_tv_series:
@@ -50,6 +52,10 @@ class OMDBPythonDB(Database):
         return matched_titles
 
     def retrieve_media_years_from_db(self) -> list[int | None]:
+        if self.omdb_client is None:
+            self.omdb_client = OMDBClient(apikey=retrieve_omdb_key())
+            self.omdb_client.set_default('timeout', 5)
+
         if self.is_tv_series:
             # Simply return the year if it already exists for a series.
             if self.media_records[0].year is not None:
