@@ -42,8 +42,6 @@ class MatchOptionsWidget(QDialog):
 
         self.populate_match_options_layout(layout, self.media_records)
 
-        # Uses a thread pool for ease when querying database (Which can be slow).
-        self._thread_pool = QThreadPool()
         # Used to disable closing this window when database calls are happening.
         self._busy = False
 
@@ -186,18 +184,20 @@ class MatchOptionsWidget(QDialog):
         return result
 
     def start_match(self, database: Database):
-        # Clear output box before populating it.
-        self.output_box.clear()
-
-        database_worker = DatabaseWorker(database)
-        database_worker.finished.connect(self.populate_output_box)
-
         # Block UI clicks while the database call is running.
         self.setEnabled(False)
         # Change the cursor to a waiting cursor and restore it when the output box receives the matched titles.
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+
+        # Clear output box before populating it.
+        self.output_box.clear()
+
+        # Start the database matching.
+        database_worker = DatabaseWorker(database)
+        database_worker.finished.connect(self.populate_output_box)
+        database_worker.error.connect(self.handle_database_query_error)
         self._busy = True
-        self._thread_pool.start(database_worker)
+        QThreadPool.globalInstance().start(database_worker)
 
     @Slot(list)
     def populate_output_box(self, matched_media_titles: list[str]):
@@ -212,11 +212,19 @@ class MatchOptionsWidget(QDialog):
             list_item.setText(title)
             self.output_box.addItem(list_item)
 
+        # Return the UI state to normal and close the MatchOptionsWidget window with an accept code.
         self.setEnabled(True)
         QApplication.restoreOverrideCursor()
         self._busy = False
-        # Close MatchOptionsWidget with an accept code.
         self.accept()
+
+    @Slot()
+    def handle_database_query_error(self):
+        # Return the UI state to normal and close the MatchOptionsWidget window.
+        self.setEnabled(True)
+        QApplication.restoreOverrideCursor()
+        self._busy = False
+        self.close()
 
     @Slot()
     def match_with_database_that_requires_api_key(self, database: Database, json_key: str) -> None:
