@@ -25,6 +25,7 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 
 ### Windows
 - `Run install_dependencies.bat`
+
 - `Use launcher.bat to open Simpler FileBot`
 
 ## Supported Databases
