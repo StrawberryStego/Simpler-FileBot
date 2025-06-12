@@ -40,7 +40,8 @@ class TheMovieDBPythonDB(Database):
                 selected_listing = _find_best_listing_near_year(possible_listings, target_year, "first_air_date")
 
             episode_lookup = _create_episode_lookup(selected_listing.get("id"),
-                                                    MediaRecord.get_all_season_numbers(self.media_records))
+                                                    MediaRecord.get_all_season_numbers(self.media_records),
+                                                    self.media_records[0].is_absolute_order)
 
             for media_record in self.media_records:
                 matched_titles.append(retrieve_episode_name_from_episode_lookup(media_record, episode_lookup))
@@ -121,7 +122,7 @@ def _get_release_year_of_listing(listing: dict, identifier_for_year: str) -> int
     return None
 
 
-def _create_episode_lookup(series_id: int, season_numbers: set[int]) \
+def _create_episode_lookup(series_id: int, season_numbers: set[int], is_absolute_order: bool) \
         -> dict[(int, int), str]:
     """
     Generate an episode lookup for a series.
@@ -130,16 +131,34 @@ def _create_episode_lookup(series_id: int, season_numbers: set[int]) \
     """
     episode_lookup: dict[(int, int), str] = {}
 
-    for season_number in season_numbers:
-        response = tmdb.TV_Seasons(series_id, season_number).info()
-        episode_info_list = response.get("episodes")
+    if is_absolute_order:
+        # TheMovieDB Python API does not have a convenient way to retrieve the absolute order for a series.
+        # We will query all episodes and create our own absolute order.
+        number_of_total_seasons = int(tmdb.TV(series_id).info().get("number_of_seasons", 1))
+        current_episode_counter = 1
 
-        if episode_info_list is None:
-            continue
+        for season_number in range(1, number_of_total_seasons + 1):
+            response = tmdb.TV_Seasons(series_id, season_number).info()
+            episode_info_list = response.get("episodes")
 
-        for episode_info in episode_info_list:
-            episode_lookup.update({
-                (season_number, int(episode_info.get("episode_number", -1))): episode_info.get("name")
-            })
+            if episode_info_list is None:
+                continue
+
+            for episode_info in episode_info_list:
+                episode_lookup.update({(1, current_episode_counter): episode_info.get("name")})
+                current_episode_counter += 1
+
+    else:
+        for season_number in season_numbers:
+            response = tmdb.TV_Seasons(series_id, season_number).info()
+            episode_info_list = response.get("episodes")
+
+            if episode_info_list is None:
+                continue
+
+            for episode_info in episode_info_list:
+                episode_lookup.update({
+                    (season_number, int(episode_info.get("episode_number", -1))): episode_info.get("name")
+                })
 
     return episode_lookup

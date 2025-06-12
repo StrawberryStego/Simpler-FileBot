@@ -63,6 +63,9 @@ def remove_excluded_folders_from_file_path(file_path: str) -> str:
     return file_path
 
 
+# pylint: disable=too-many-instance-attributes
+# Elements of this class should definitely be refactored into some list[MediaRecord] object, so it can hold
+# instance variables and methods that really should be in a helper list instead of a singular class.
 class MediaRecord:
     """Object that contains metadata about a file... more specifically, information about the filename."""
 
@@ -94,6 +97,9 @@ class MediaRecord:
 
         # Store the container from the original filename.
         self.container: str = Path(file_path).suffix.lstrip(".")
+
+        # Whether an episode is in absolute order or not.
+        self.is_absolute_order: bool = False
 
     def _enrich_metadata_via_file_name(self):
         """

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Slot, QThreadPool
 from PySide6.QtGui import QColor, QIcon, QPixmap, QCursor
 from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLabel, QWidget, QHBoxLayout, QLineEdit, \
-    QPushButton, QListWidgetItem, QApplication
+    QPushButton, QListWidgetItem, QApplication, QCheckBox
 
 from backend.api_key_config import api_key_config
 from backend.database_worker import DatabaseWorker
@@ -115,6 +115,9 @@ class MatchOptionsWidget(QDialog):
                                               year_input_box.text(), media_records))
         year_update_container_layout.addWidget(year_input_box)
 
+        absolute_order_checkbox = QCheckBox("Absolute TV Order?")
+        absolute_order_checkbox.toggled.connect(lambda checked: setattr(media_records[0], "is_absolute_order", checked))
+
         database_buttons_widget = QWidget()
         database_buttons_layout = QHBoxLayout(database_buttons_widget)
         for button, supported_media_type in database_specs.items():
@@ -126,6 +129,7 @@ class MatchOptionsWidget(QDialog):
         episode_matching_layout.addWidget(year_label)
         episode_matching_layout.addWidget(year_update_container)
         episode_matching_layout.addWidget(database_buttons_widget)
+        episode_matching_layout.addWidget(absolute_order_checkbox)
 
         return episode_matching_layout
 
