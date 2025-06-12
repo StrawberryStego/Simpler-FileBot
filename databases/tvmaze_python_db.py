@@ -2,7 +2,7 @@ from tvmaze.api import Api
 from tvmaze.models import ResultSet, Model
 
 from backend.media_record import MediaRecord
-from databases.database import Database
+from databases.database import Database, retrieve_episode_name_from_episode_lookup
 
 
 class TVMazePythonDB(Database):
@@ -45,22 +45,13 @@ class TVMazePythonDB(Database):
 
         matched_episodes: ResultSet[Model | None] = self.api.show.episodes(matched_show_id)
 
-        # Map: (Season, Episode number) to Episode model
-        episode_lookup = {(episode.season, episode.number): episode for episode in matched_episodes}
+        # Map: (Season, Episode number) to Episode name.
+        episode_lookup = {(episode.season, episode.number): episode.name for episode in matched_episodes}
 
         result: list[str | None] = []
 
         for media_record in self.media_records:
-            # Default to season 1 if there is no season attribute for the MediaRecord.
-            media_record_season_number: int = media_record.metadata.get("season", 1)
-            media_record_episode_values = media_record.metadata.get("episode", -1)
-
-            # media_record_episode_values could potentially be a list if there are multiple episodes. Pick the 1st one.
-            media_record_episode_number = media_record_episode_values[0] \
-                if isinstance(media_record_episode_values, list) else media_record_episode_values
-
-            match = episode_lookup.get((media_record_season_number, media_record_episode_number))
-            result.append(match.name if match else None)
+            result.append(retrieve_episode_name_from_episode_lookup(media_record, episode_lookup))
 
         return result
 

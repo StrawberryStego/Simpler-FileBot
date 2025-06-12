@@ -2,7 +2,7 @@ from omdb import OMDBClient
 
 from backend.api_key_config import retrieve_omdb_key
 from backend.media_record import MediaRecord
-from databases.database import Database
+from databases.database import Database, retrieve_episode_name_from_episode_lookup
 
 
 # pylint: disable=R0801
@@ -33,16 +33,7 @@ class OMDBPythonDB(Database):
                                                          MediaRecord.get_all_season_numbers(self.media_records))
 
             for media_record in self.media_records:
-                # Default to season 1 if there is no season attribute for the MediaRecord.
-                media_record_season_number: int = media_record.metadata.get("season", 1)
-                media_record_episode_values = media_record.metadata.get("episode", -1)
-
-                # media_record_episode_values could contain multiple episode numbers. Pick the 1st one.
-                media_record_episode_number = media_record_episode_values[0] \
-                    if isinstance(media_record_episode_values, list) else media_record_episode_values
-
-                match = episode_lookup.get((media_record_season_number, media_record_episode_number))
-                matched_titles.append(match if match else None)
+                matched_titles.append(retrieve_episode_name_from_episode_lookup(media_record, episode_lookup))
         else:
             # MediaRecord Movie Match.
             for media_record in self.media_records:

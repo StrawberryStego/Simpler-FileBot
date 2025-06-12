@@ -31,3 +31,19 @@ class Database(ABC):
         :return: A list where each element is an integer year or None if not available.
         :rtype: list[int | None]
         """
+
+
+def retrieve_episode_name_from_episode_lookup(media_record: MediaRecord, episode_lookup: dict[(int, int), str]) -> str:
+    """
+    :param MediaRecord media_record: MediaRecord that represents an episode.
+    :param dict episode_lookup: {(season_number, episode_number) -> episode_name}.
+    """
+    # Default to season 1 if there is no season attribute for the MediaRecord.
+    media_record_season_number: int = media_record.metadata.get("season", 1)
+    media_record_episode_values = media_record.metadata.get("episode", -1)
+
+    # media_record_episode_values could potentially be a list if there are multiple episodes. Pick the 1st one.
+    media_record_episode_number = media_record_episode_values[0] \
+        if isinstance(media_record_episode_values, list) else media_record_episode_values
+
+    return episode_lookup.get((media_record_season_number, media_record_episode_number))

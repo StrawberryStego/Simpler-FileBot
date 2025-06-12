@@ -2,7 +2,7 @@ import tmdbsimple as tmdb
 
 from backend.api_key_config import retrieve_the_movie_db_key
 from backend.media_record import MediaRecord
-from databases.database import Database
+from databases.database import Database, retrieve_episode_name_from_episode_lookup
 
 
 class TheMovieDBPythonDB(Database):
@@ -39,8 +39,11 @@ class TheMovieDBPythonDB(Database):
                 target_year = self.media_records[0].year
                 selected_listing = _find_best_listing_near_year(possible_listings, target_year, "first_air_date")
 
+            episode_lookup = _create_episode_lookup(selected_listing.get("id"),
+                                                    MediaRecord.get_all_season_numbers(self.media_records))
+
             for media_record in self.media_records:
-                matched_titles.append(_retrieve_episode_title(selected_listing.get("id"), media_record))
+                matched_titles.append(retrieve_episode_name_from_episode_lookup(media_record, episode_lookup))
         else:
             # MediaRecord Movie Match.
             for media_record in self.media_records:
@@ -118,21 +121,25 @@ def _get_release_year_of_listing(listing: dict, identifier_for_year: str) -> int
     return None
 
 
-def _retrieve_episode_title(series_id: int, media_record: MediaRecord) -> str | None:
+def _create_episode_lookup(series_id: int, season_numbers: set[int]) \
+        -> dict[(int, int), str]:
     """
-    Return the episode title from TMDB database, given a MediaRecord.
+    Generate an episode lookup for a series.
+
+    Return a dict: [(season_number, episode_number) -> title].
     """
-    # Default to season 1 if attribute is missing.
-    media_record_season_number = media_record.metadata.get("season", 1)
-    media_record_episode_values = media_record.metadata.get("episode", None)
+    episode_lookup: dict[(int, int), str] = {}
 
-    if media_record_episode_values is None:
-        return None
+    for season_number in season_numbers:
+        response = tmdb.TV_Seasons(series_id, season_number).info()
+        episode_info_list = response.get("episodes")
 
-    # media_record_episode_values could potentially be a list if there are multiple episodes. Pick the 1st one.
-    media_record_episode_number = media_record_episode_values[0] \
-        if isinstance(media_record_episode_values, list) else media_record_episode_values
+        if episode_info_list is None:
+            continue
 
-    episode_info = tmdb.TV_Episodes(series_id, media_record_season_number, media_record_episode_number).info()
+        for episode_info in episode_info_list:
+            episode_lookup.update({
+                (season_number, int(episode_info.get("episode_number", -1))): episode_info.get("name")
+            })
 
-    return episode_info.get("name", None)
+    return episode_lookup
