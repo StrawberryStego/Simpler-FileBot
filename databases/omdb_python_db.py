@@ -30,7 +30,8 @@ class OMDBPythonDB(Database):
         if self.is_tv_series:
             # MediaRecord Episode Match.
             episode_lookup = self._create_episode_lookup(self.media_records[0].title, self.media_records[0].year,
-                                                         MediaRecord.get_all_season_numbers(self.media_records))
+                                                         MediaRecord.get_all_season_numbers(self.media_records),
+                                                         self.media_records[0].is_absolute_order)
 
             for media_record in self.media_records:
                 matched_titles.append(retrieve_episode_name_from_episode_lookup(media_record, episode_lookup))
@@ -76,7 +77,8 @@ class OMDBPythonDB(Database):
 
         return release_years
 
-    def _create_episode_lookup(self, title: str, year: int | None, season_numbers: set[int]) -> dict[(int, int), str]:
+    def _create_episode_lookup(self, title: str, year: int | None, season_numbers: set[int], is_absolute_order: bool) \
+            -> dict[(int, int), str]:
         """
         Generate an episode lookup for a series.
 
@@ -84,17 +86,34 @@ class OMDBPythonDB(Database):
         """
         episode_lookup: dict[(int, int), str] = {}
 
-        # OMDB requires you to look up episodes one season at a time.
-        for season_number in season_numbers:
-            query = self.omdb_client.get(title=title, year=year, season=season_number)
-            episode_info_list = query.get("episodes")
+        if is_absolute_order:
+            # OMDB does not have a convenient way to retrieve the absolute order for a series.
+            # We will query all episodes and create our own absolute order.
+            number_of_total_seasons = int(self.omdb_client.get(title=title, year=year).get("total_seasons", 1))
+            current_episode_counter = 1
 
-            if episode_info_list is None:
-                continue
+            for season_number in range(1, number_of_total_seasons + 1):
+                query = self.omdb_client.get(title=title, year=year, season=season_number)
+                episode_info_list = query.get("episodes")
 
-            for episode_info in episode_info_list:
-                episode_lookup.update({
-                    (season_number, int(episode_info.get("episode", -1))): episode_info.get("title")
-                })
+                if episode_info_list is None:
+                    continue
+
+                for episode_info in episode_info_list:
+                    episode_lookup.update({(1, current_episode_counter): episode_info.get("title")})
+                    current_episode_counter += 1
+        else:
+            # OMDB requires you to look up episodes one season at a time.
+            for season_number in season_numbers:
+                query = self.omdb_client.get(title=title, year=year, season=season_number)
+                episode_info_list = query.get("episodes")
+
+                if episode_info_list is None:
+                    continue
+
+                for episode_info in episode_info_list:
+                    episode_lookup.update({
+                        (season_number, int(episode_info.get("episode", -1))): episode_info.get("title")
+                    })
 
         return episode_lookup
