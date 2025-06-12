@@ -98,7 +98,7 @@ class TheMovieDBPythonDB(Database):
             # In this branch case, the user does not know the year of the series. Just select the first listing.
             listing_date = list(possible_listings)[0].get("release_date", None)
 
-            release_years.append(int(listing_date[:4]) if listing_date is not None else None)
+            release_years.append(int(listing_date[:4]) if listing_date and listing_date[:4].isdigit() else None)
 
         return release_years
 
@@ -115,7 +115,7 @@ def _find_best_listing_near_year(possible_listings: dict, target_year: int, iden
 def _get_release_year_of_listing(listing: dict, identifier_for_year: str) -> int | None:
     premiere_date = listing.get(identifier_for_year, None)
 
-    if premiere_date is not None:
+    if premiere_date and premiere_date[:4].isdigit():
         # Return only the year.
         return int(premiere_date[:4])
 

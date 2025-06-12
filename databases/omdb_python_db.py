@@ -57,7 +57,7 @@ class OMDBPythonDB(Database):
 
             year_range = series_info.get("year")
 
-            if year_range is not None:
+            if year_range and year_range[:4].isdigit():
                 year = int(year_range[:4])
                 return [year] * len(self.media_records)
 
