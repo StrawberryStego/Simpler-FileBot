@@ -48,6 +48,14 @@ class TVMazePythonDB(Database):
         # Map: (Season, Episode number) to Episode name.
         episode_lookup = {(episode.season, episode.number): episode.name for episode in matched_episodes}
 
+        # If absolute order, just duplicate the matched_episodes, e.g., S03E10 -> S01E30 (For 10 episodes per season).
+        current_episode_counter = 1
+
+        if self.media_records[0].is_absolute_order:
+            for episode in matched_episodes:
+                episode_lookup.update({(1, current_episode_counter): episode.name})
+                current_episode_counter += 1
+
         result: list[str | None] = []
 
         for media_record in self.media_records:
