@@ -98,7 +98,7 @@ def get_premiere_year_of_listing(listing: Model | None) -> int | None:
 
     premiere_date = listing.premiered
 
-    if premiere_date is not None:
+    if premiere_date and premiere_date[:4].isdigit():
         # Return only the year.
         return int(premiere_date[:4])
 
