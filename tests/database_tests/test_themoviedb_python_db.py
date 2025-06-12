@@ -8,8 +8,8 @@ def _simple_hit(title, date):
     return {"title": title, "release_date": date}
 
 
-def _fake_episode(name="The Pilot"):
-    return {"name": name}
+def _fake_season_payload(title, episode_number):
+    return {"episodes": [{"episode_number": episode_number, "name": title}]}
 
 
 @patch("databases.themoviedb_python_db.retrieve_the_movie_db_key", return_value="DUMMY_KEY")
@@ -29,9 +29,9 @@ def test_movie_title_happy_path(mock_search_cls, _fake_key):
 
 
 @patch("databases.themoviedb_python_db.retrieve_the_movie_db_key", return_value="DUMMY_KEY")
-@patch("tmdbsimple.TV_Episodes")
+@patch("tmdbsimple.TV_Seasons")
 @patch("tmdbsimple.Search")
-def test_tv_episode_lookup(mock_search_cls, mock_tv_episodes_cls, _fake_key):
+def test_tv_episode_lookup_successful(mock_search_cls, mock_tv_episodes_cls, _fake_key):
     # Mock Search.tv() to give a single series hit.
     mock_search = mock_search_cls.return_value
     mock_search.tv.return_value = {
@@ -39,7 +39,7 @@ def test_tv_episode_lookup(mock_search_cls, mock_tv_episodes_cls, _fake_key):
     }
 
     # Mock TV_Episodes(...).info() → {"name": ...}
-    mock_tv_episodes_cls.return_value.info.return_value = _fake_episode("Winter Is Coming")
+    mock_tv_episodes_cls.return_value.info.return_value = _fake_season_payload("Winter Is Coming", 1)
 
     rec = MediaRecord("Game.of.Thrones.2011.S01E01.mkv")
     db = TheMovieDBPythonDB([rec], is_tv_series=True)
