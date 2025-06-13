@@ -138,7 +138,12 @@ def _create_episode_lookup(series_id: int, season_numbers: set[int], is_absolute
         current_episode_counter = 1
 
         for season_number in range(1, number_of_total_seasons + 1):
-            response = tmdb.TV_Seasons(series_id, season_number).info()
+            try:
+                response = tmdb.TV_Seasons(series_id, season_number).info()
+            except IOError:
+                # Skip if the TheMovieDB couldn't find the season info for a particular season.
+                continue
+
             episode_info_list = response.get("episodes")
 
             if episode_info_list is None:
@@ -150,7 +155,12 @@ def _create_episode_lookup(series_id: int, season_numbers: set[int], is_absolute
 
     else:
         for season_number in season_numbers:
-            response = tmdb.TV_Seasons(series_id, season_number).info()
+            try:
+                response = tmdb.TV_Seasons(series_id, season_number).info()
+            except IOError:
+                # Skip if the TheMovieDB couldn't find the season info for a particular season.
+                continue
+
             episode_info_list = response.get("episodes")
 
             if episode_info_list is None:
