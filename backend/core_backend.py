@@ -32,7 +32,15 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
         if database.is_tv_series:
             # Unformatted numbers.
             raw_season_number = media_record.metadata.get("season", 1)
-            raw_episode_number = media_record.metadata.get("episode")
+            raw_episode_number: str | None = None
+
+            # guessit might return a list of episode numbers, e.g., S01E10-E11. Just pick the first episode.
+            raw_episode_metadata: list = media_record.metadata.get("episode")
+
+            if isinstance(raw_episode_metadata, list) and len(raw_episode_metadata) > 0:
+                raw_episode_number = raw_episode_metadata[0]
+            else:
+                raw_episode_number = str(raw_episode_metadata)
 
             series_context: dict = {
                 "series_name": media_record.title,
