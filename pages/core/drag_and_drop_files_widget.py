@@ -1,5 +1,6 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QListWidget, QListWidgetItem
+from PySide6.QtCore import Qt, QPoint
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QListWidget, QListWidgetItem, QMenu, QDialog, QVBoxLayout, QLabel
 
 from backend.media_record import MediaRecord
 
@@ -13,6 +14,10 @@ class DragAndDropFilesWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
+
+        # Allow the user to right-click a QListWidgetItem to show information about the MediaRecord.
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu_on_right_click)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -37,3 +42,32 @@ class DragAndDropFilesWidget(QListWidget):
         list_item = QListWidgetItem(media_record.file_name)
         list_item.setData(Qt.ItemDataRole.UserRole, media_record)
         self.addItem(list_item)
+
+    def show_context_menu_on_right_click(self, position: QPoint):
+        """Show a context menu when a user right-clicks on a QListWidgetItem."""
+        item = self.itemAt(position)
+        if item is None:
+            return
+
+        # Recover the MediaRecord data from the QListWidgetItem.
+        media_record: MediaRecord = item.data(Qt.ItemDataRole.UserRole)
+
+        context_menu = QMenu(self)
+        metadata_choice = context_menu.addAction("Show metadata")
+        action = context_menu.exec(self.viewport().mapToGlobal(position))
+
+        if action == metadata_choice:
+            self.__show_metadata_dialog(media_record)
+
+    @staticmethod
+    def __show_metadata_dialog(media_record: MediaRecord):
+        metadata_dialog = QDialog()
+        metadata_dialog.setWindowIcon(QIcon(QPixmap("resources/Alternative App Logo.png")))
+        metadata_dialog.setWindowTitle(media_record.file_name)
+
+        metadata_dialog_layout = QVBoxLayout(metadata_dialog)
+
+        for key, value in media_record.metadata.items():
+            metadata_dialog_layout.addWidget(QLabel(f"{key}: {value}"))
+
+        metadata_dialog.exec()
