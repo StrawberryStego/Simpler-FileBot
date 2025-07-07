@@ -41,7 +41,7 @@ def test_movie_input_shows_correct_database_buttons(qtbot: QtBot):
 
     assert "TheMovieDB" in buttons_text
     assert "OMDB" in buttons_text
-    assert "Attempt to match by filename only" in buttons_text
+    assert "Attempt to match locally using metadata" in buttons_text
     assert "TVMaze" not in buttons_text
 
 
@@ -54,7 +54,7 @@ def test_series_input_shows_correct_database_buttons(qtbot: QtBot):
 
     assert "TheMovieDB" in buttons_text
     assert "OMDB" in buttons_text
-    assert "Attempt to match by filename only" in buttons_text
+    assert "Attempt to match locally using metadata" in buttons_text
     assert "TVMaze" in buttons_text
 
 
