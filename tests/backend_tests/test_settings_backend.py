@@ -4,7 +4,8 @@ from PySide6.QtCore import Qt
 from backend import settings_backend
 from backend.json_config import JSONConfig
 from backend.settings_backend import (retrieve_theme_from_settings, save_new_theme_to_settings,
-                                      retrieve_excluded_folders, add_excluded_folder, remove_excluded_folder)
+                                      retrieve_excluded_folders, add_excluded_folder, remove_excluded_folder,
+                                      retrieve_filename_analysis_only_flag, set_filename_analysis_only_flag)
 
 
 # pylint: disable=unused-argument, redefined-outer-name
@@ -51,6 +52,18 @@ def test_add_excluded_folder_saves_successfully(redirect_settings_file_path_to_t
     add_excluded_folder(test_folder)
 
     assert retrieve_excluded_folders()[0] == test_folder
+
+
+def test_retrieve_filename_analysis_only_flag(redirect_settings_file_path_to_temp_file):
+    assert not retrieve_filename_analysis_only_flag()
+
+
+def test_set_filename_analysis_only_flag(redirect_settings_file_path_to_temp_file):
+    assert not retrieve_filename_analysis_only_flag()
+
+    set_filename_analysis_only_flag(True)
+
+    assert retrieve_filename_analysis_only_flag()
 
 
 def test_remove_excluded_folder_deletes_successfully(redirect_settings_file_path_to_temp_file):
