@@ -174,7 +174,7 @@ class MatchOptionsWidget(QDialog):
         tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
         tv_maze_db_button.setObjectName("dbBtn")
 
-        file_name_match_db_button = QPushButton(" Attempt to match by filename only ")
+        file_name_match_db_button = QPushButton(" Attempt to match locally using metadata ")
         file_name_match_db_button.clicked.connect(lambda: self.start_match(
             FileNameMatchDB(self.media_records, self.is_tv_series)))
 
