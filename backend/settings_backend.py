@@ -18,7 +18,8 @@ def ensure() -> JSONConfig:
                 "theme": (Qt.ColorScheme.Dark.name
                           if QGuiApplication.styleHints().colorScheme() == Qt.ColorScheme.Unknown
                           else QGuiApplication.styleHints().colorScheme().name),
-                "excluded_folders": []
+                "excluded_folders": [],
+                "use_only_filename_for_analysis": False
             }
         )
 
@@ -47,6 +48,14 @@ def remove_excluded_folder(folder_path: str):
 
 def retrieve_excluded_folders() -> list[str]:
     return ensure().get("excluded_folders", [])
+
+
+def retrieve_filename_analysis_only_flag() -> bool:
+    return ensure().get("use_only_filename_for_analysis", False)
+
+
+def set_filename_analysis_only_flag(new_value: bool):
+    return ensure().set("use_only_filename_for_analysis", new_value)
 
 
 def delete_and_recreate_settings_file():

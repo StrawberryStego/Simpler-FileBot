@@ -3,11 +3,12 @@ import os.path
 from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QListWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QApplication, QFileDialog, QDialog
+    QApplication, QFileDialog, QDialog, QCheckBox
 
 from backend.core_backend import (get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
 from backend.error_popup_widget import ErrorPopupWidget
+from backend.settings_backend import retrieve_filename_analysis_only_flag, set_filename_analysis_only_flag
 from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
 from pages.core.match_options_widget import MatchOptionsWidget
 
@@ -220,11 +221,17 @@ class CoreToolBar(QWidget):
         remove_all_files_button = QPushButton(" ❌ Remove All Files  ")
         remove_all_files_button.clicked.connect(self.remove_all_files)
 
+        filename_only_checkbox = QCheckBox("Use only the file's name for metadata analysis")
+        filename_only_checkbox.setChecked(retrieve_filename_analysis_only_flag())
+        filename_only_checkbox.toggled.connect(set_filename_analysis_only_flag)
+
         core_tool_bar_layout.addWidget(browse_files_button)
         core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
         core_tool_bar_layout.addWidget(remove_file_button)
         core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
         core_tool_bar_layout.addWidget(remove_all_files_button)
+        core_tool_bar_layout.addSpacing(self.BUTTON_SPACING)
+        core_tool_bar_layout.addWidget(filename_only_checkbox)
         # Adding a stretch at the end, left-aligns all buttons and sizes them correctly.
         core_tool_bar_layout.addStretch()
 

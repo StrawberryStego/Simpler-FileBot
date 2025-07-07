@@ -4,7 +4,7 @@ from typing import Iterable
 
 from guessit import guessit
 
-from backend.settings_backend import retrieve_excluded_folders
+from backend.settings_backend import retrieve_excluded_folders, retrieve_filename_analysis_only_flag
 
 
 def retrieve_all_parent_prefixes(folder_path: str) -> set[str]:
@@ -75,8 +75,13 @@ class MediaRecord:
         # Here, os is used as it handles different os' path conventions well.
         self.file_name = os.path.basename(file_path)
 
+        # Settings flag for whether we should use parent folders or just the filename for metadata analysis.
+        use_only_filename_for_analysis = retrieve_filename_analysis_only_flag()
+
         # Remove excluded folders from guessit matching consideration, i.e., clean the file_path.
-        self.metadata: dict = guessit(remove_excluded_folders_from_file_path(file_path))
+        self.metadata: dict = (guessit(remove_excluded_folders_from_file_path(file_path))
+                               if not use_only_filename_for_analysis
+                               else guessit(self.file_name))
 
         # Setting commonly used values, otherwise, get from metadata.
         self.media_type: str | None = self.metadata.get("type")
