@@ -1,4 +1,4 @@
-name: Python Build Check
+name: Python v3.12 Build Check
 
 on: [push]
 
