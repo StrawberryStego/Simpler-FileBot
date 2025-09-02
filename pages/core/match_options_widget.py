@@ -158,7 +158,7 @@ class MatchOptionsWidget(QDialog):
         the_movie_db_button.clicked.connect(lambda: self.start_match(
             TheMovieDBPythonDB(self.media_records, self.is_tv_series), "the_movie_db"
         ))
-        the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.svg")))
+        the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.png")))
         the_movie_db_button.setObjectName("dbBtn")
 
         omdb_db_button = QPushButton(" OMDB ")
