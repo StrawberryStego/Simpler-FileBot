@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QListWidget, QListWidgetItem, QMenu, QDialog, QVBoxLayout, QLabel
@@ -30,9 +32,26 @@ class DragAndDropFilesWidget(QListWidget):
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
-                self.add_file_to_list(url.toLocalFile())
+                self.add_path(url.toLocalFile())
 
             event.acceptProposedAction()
+
+    def add_path(self, file_path: str):
+        """
+        Add a single file or file(s) in a directory to QListWidget.
+        TODO: Rename these variables. I hate Python and it is unclear which variable is a Path or String object.
+        """
+        path = Path(file_path)
+
+        if path.is_file():
+            self.add_file_to_list(file_path)
+
+        if path.is_dir():
+            # Iterate through a folder recursively and add all files to the QListWidget.
+            for file in path.rglob("*"):
+                # Do not add the folder as a file.
+                if file.is_file():
+                    self.add_file_to_list(str(file))
 
     def add_file_to_list(self, file_path: str):
         """Create a MediaRecord from a file path and insert the record into the widget list."""
