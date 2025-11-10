@@ -1,0 +1,22 @@
+name: Python v3.13 Build Check
+
+on: [push]
+
+jobs:
+  build:
+    name: Python Build Check
+    # Using windows since linux requires installing weird dependencies for PySide6.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run build check
+        run: python main.py
