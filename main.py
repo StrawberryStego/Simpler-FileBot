@@ -18,6 +18,22 @@ import os
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QGuiApplication, QIcon, QPixmap
+from PySide6.QtWidgets import (
+    QApplication,
+    QHBoxLayout,
+    QListWidget,
+    QMainWindow,
+    QSizePolicy,
+    QStackedWidget,
+    QWidget,
+)
+
+from pages.core.core import CorePage
+from pages.formats import FormatsPage
+from pages.settings import SettingsPage
+
 
 def is_crostini():
     """Detect if running in ChromeOS Crostini environment."""
@@ -69,22 +85,6 @@ if is_crostini():
     # Force X11 mode on Crostini
     os.environ["QT_QPA_PLATFORM"] = "xcb"
     print("Detected ChromeOS Crostini - using X11 mode for better stability")
-
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QGuiApplication, QIcon, QPixmap
-from PySide6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QListWidget,
-    QMainWindow,
-    QSizePolicy,
-    QStackedWidget,
-    QWidget,
-)
-
-from pages.core.core import CorePage
-from pages.formats import FormatsPage
-from pages.settings import SettingsPage
 
 # Percentage of the screen's dimensions that various widget sizes should adhere to.
 DEFAULT_APP_WIDTH_SCALING = 0.70
