@@ -6,7 +6,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QGuiApplication, QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QListWidget, QStackedWidget, QSizePolicy
 
-from pages.core.core import CorePage
+from pages.core.main_page import MainPage
 from pages.formats import FormatsPage
 from pages.settings import SettingsPage
 
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 
         # QStackedWidget that stores different pages/widgets that can be switched to/from.
         self.pages = QStackedWidget()
-        self.pages.addWidget(CorePage())
+        self.pages.addWidget(MainPage())
         self.pages.addWidget(FormatsPage())
         self.pages.addWidget(SettingsPage())
         self.pages.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
