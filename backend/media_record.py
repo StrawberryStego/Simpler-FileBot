@@ -1,7 +1,9 @@
 import os
+import re
 from pathlib import Path
 from typing import Iterable
 
+import unicodedata
 from guessit import guessit
 
 from backend.settings_backend import retrieve_excluded_folders, retrieve_filename_analysis_only_flag
@@ -142,14 +144,34 @@ class MediaRecord:
         return MediaRecord.has_episodes(media_record_list) and not MediaRecord.has_movies(media_record_list)
 
     @staticmethod
+    def _normalize_title(title: str):
+        # Normalizes weird Unicode characters w/ Normalize Form Compatibility (K) Composition (C).
+        title = unicodedata.normalize("NFKC", title).strip()
+        title = re.sub(r"\s+", " ", title)
+        return title.casefold()
+
+    @staticmethod
     def get_unique_titles(media_record_list: Iterable["MediaRecord"]) -> set[str]:
         """
         Returns a set of unique titles from a media_record_list.
         Useful to check the validity of an episode file list, e.g., whether there are multiple tv series.
+
+        Note: Case sensitivity isn't considered and the first record with the name is returned.
         """
 
         # Gather unique series titles; ignore records without a series title.
-        return {record.title for record in media_record_list if record.title is not None}
+        titles: dict[str, str] = {}
+
+        for record in media_record_list:
+            if record.title is None:
+                continue
+
+            key = MediaRecord._normalize_title(record.title)
+            # Dictionary.setdefault sets the value once for each key, and that value never changes.
+            # This allows us to return the first record's title with its unique capitalization.
+            titles.setdefault(key, record.title.strip())
+
+        return set(titles.values())
 
     @staticmethod
     def update_title_for_all_records(title: str, media_record_list: Iterable["MediaRecord"]):
