@@ -3,7 +3,7 @@ import os.path
 from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QListWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QApplication, QDialog
+    QApplication, QDialog, QRadioButton, QButtonGroup
 
 from backend.core_backend import (get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
@@ -22,6 +22,7 @@ class CoreRenamerWidget(QWidget):
         # Used to undo a rename function. Should be cleared on a new match or an undo operation.
         # (renamed_total_file_path: str, old_total_file_path: str)
         self.last_renames: list[tuple[str, str]] = []
+        self._dialog_open = False
 
         # Contains file input/output boxes and button components (Rename, Undo, etc.).
         files_ui_layout = QHBoxLayout(self)
@@ -35,8 +36,26 @@ class CoreRenamerWidget(QWidget):
         left_box_layout.addWidget(left_box_label)
         left_box_layout.addWidget(self.left_box)
 
-        # Utility Buttons contained within a VBox.
+        # Utility Buttons contained within a VBox & Mode Selection.
         buttons_layout = QVBoxLayout()
+        
+        mode_label = QLabel("Match Mode:")
+        self.radio_auto = QRadioButton("Auto-detect")
+        self.radio_series = QRadioButton("Force Series")
+        self.radio_movies = QRadioButton("Force Movies")
+        self.radio_auto.setChecked(True)
+
+        self.mode_group = QButtonGroup(self)
+        self.mode_group.addButton(self.radio_auto)
+        self.mode_group.addButton(self.radio_series)
+        self.mode_group.addButton(self.radio_movies)
+
+        buttons_layout.addWidget(mode_label)
+        buttons_layout.addWidget(self.radio_auto)
+        buttons_layout.addWidget(self.radio_series)
+        buttons_layout.addWidget(self.radio_movies)
+        buttons_layout.addSpacing(10)
+
         self.match_button = QPushButton("Match\n🗃")
         self.rename_button = QPushButton("Rename\n🖋")
         self.undo_button = QPushButton("Undo\n↩")
@@ -77,6 +96,8 @@ class CoreRenamerWidget(QWidget):
         files_ui_layout.addLayout(left_box_layout)
         files_ui_layout.addLayout(buttons_layout)
         files_ui_layout.addLayout(right_box_layout)
+        self._dialog_open = False  # Add this flag to prevent multiple dialogs
+
 
     @Slot()
     def open_match_options_widget(self):
@@ -85,17 +106,29 @@ class CoreRenamerWidget(QWidget):
         in as parent for sizing/positioning as well as the left input box (QListWidget).
         """
         # Nothing to match... return.
-        if self.left_box.count() == 0:
+        if self.left_box.count() == 0 or self._dialog_open:
             return
 
+        self._dialog_open = True
+
+        # forced_mode: None (Auto), True (Series), False (Movies)
+        forced_mode = None
+        if self.radio_series.isChecked():
+            forced_mode = True
+        elif self.radio_movies.isChecked():
+            forced_mode = False
+
         # Open a MatchOptionsWidget to allow users to select a database option.
-        return_code = MatchOptionsWidget(self.left_box, self.right_box).exec()
+        dialog = MatchOptionsWidget(self.left_box, self.right_box, parent=self, forced_mode=forced_mode)
+        return_code = dialog.exec()
 
         if return_code == QDialog.DialogCode.Accepted:
             # Enable the rename button once files are matched.
             self.rename_button.setEnabled(True)
             # Remove any old cached last_renamed files from previous renames.
             self.last_renames.clear()
+
+        self._dialog_open = False
 
     @Slot()
     def rename_files_if_allowed(self):
