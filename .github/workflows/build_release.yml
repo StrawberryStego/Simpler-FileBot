@@ -1,0 +1,78 @@
+name: Python v3.14 Build RELEASE
+
+on: [ workflow_dispatch ]
+
+jobs:
+  build:
+    name: Build Executable
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0  # Crucial for git describe and logs
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
+        cache: 'pip' # Automatically caches dependencies
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: python -m PyInstaller main.spec
+
+    - name: Prepare Artifacts
+      run: |
+        copy ".portable.readme.txt" "dist\"
+        dir dist\
+
+    - name: Zip dist folder
+      run: Get-ChildItem -Path dist\* -Force | Compress-Archive -DestinationPath Simpler-FileBot-Windows.zip -Update
+
+    - name: Generate build timestamp
+      shell: powershell
+      run: |
+        $timestamp = Get-Date -Format "yyyyMMddHHmm"
+        echo "BUILD_VERSION=$timestamp" >> $env:GITHUB_ENV
+
+    - name: Generate release notes
+      shell: powershell
+      run: |
+        # Check if any tags exist in the repo
+        $hasTags = git tag
+        
+        if ($null -eq $hasTags) {
+            # No tags found: Get all commits
+            $notes = git log --pretty=format:"* %s (%h)"
+        } else {
+            # Tags exist: Try to get the last one
+            $lastTag = git describe --tags --abbrev=0 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                $notes = git log --pretty=format:"* %s (%h)"
+            } else {
+                $notes = git log "$($lastTag)..HEAD" --pretty=format:"* %s (%h)"
+            }
+        }
+
+        # Handle empty notes (e.g., first commit)
+        if ([string]::IsNullOrWhiteSpace($notes)) { $notes = "Initial release" }
+
+        echo "RELEASE_NOTES<<EOF" >> $env:GITHUB_ENV
+        echo $notes >> $env:GITHUB_ENV
+        echo "EOF" >> $env:GITHUB_ENV
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.BUILD_VERSION }}
+        name: Release ${{ env.BUILD_VERSION }}
+        files: Simpler-FileBot-Windows.zip
+        body: ${{ env.RELEASE_NOTES }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
