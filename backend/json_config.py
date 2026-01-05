@@ -6,9 +6,19 @@ from platformdirs import user_data_dir
 
 
 class JSONConfig:
-    """Handle one JSON config file with sensible defaults."""
+    """Handle one JSON config file with local override support."""
+
     def __init__(self, filename: str, defaults: dict):
-        self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
+        local_dir = Path.cwd()
+        portable_flag = local_dir / ".portable"
+
+        if portable_flag.exists():
+            # Use the local folder if .portable exists
+            self.path = local_dir / filename
+        else:
+            # Otherwise use the standard system path
+            self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
+
         self.defaults = defaults
         self._ensure_exists()
 
