@@ -7,7 +7,7 @@ from databases.database import Database
 
 
 # pylint: disable=missing-class-docstring
-class TestDB(Database):
+class MockDatabase(Database):
     def retrieve_media_titles_from_db(self) -> list[str | None]:
         pass
 
@@ -19,7 +19,7 @@ def test_finished_signal_emits_successfully(qtbot: QtBot, monkeypatch: MonkeyPat
     monkeypatch.setattr("backend.database_worker.match_titles_using_db_and_format",
                         lambda db: ["Iron Man (2008).mkv", "Doctor Strange (2016).mkv"])
 
-    database_worker = DatabaseWorker(TestDB([]))
+    database_worker = DatabaseWorker(MockDatabase([]))
     with qtbot.waitSignal(database_worker.finished) as payload:
         QThreadPool.globalInstance().start(database_worker)
 
@@ -31,7 +31,7 @@ def test_error_signal_emits_on_exception(qtbot: QtBot, monkeypatch: MonkeyPatch)
         raise RuntimeError("")
     monkeypatch.setattr("backend.database_worker.match_titles_using_db_and_format",
                         _boom)
-    database_worker = DatabaseWorker(TestDB([]))
+    database_worker = DatabaseWorker(MockDatabase([]))
 
     # Verify that the finished signal is not emitted.
     with qtbot.assertNotEmitted(database_worker.finished):
