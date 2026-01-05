@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, Q
 from pages.core.main_page import MainPage
 from pages.formats import FormatsPage
 from pages.settings import SettingsPage
+from backend.utils import resource_path
 
 # Percentage of the screen's dimensions that various widget sizes should adhere to.
 DEFAULT_APP_WIDTH_SCALING = 0.70
@@ -54,13 +55,12 @@ class MainWindow(QMainWindow):
 
         # Additional window setup.
         self.setWindowTitle("Simpler FileBot v1.5.3")
-        self.setWindowIcon(QIcon(QPixmap("resources/Alternative App Logo.png")))
+        self.setWindowIcon(QIcon(QPixmap(resource_path("resources/Alternative App Logo.png"))))
 
         # Set the main application to start at a percentage of the screen's size.
         default_screen_width = int(screen_size_info.width() * DEFAULT_APP_WIDTH_SCALING)
         default_screen_height = int(screen_size_info.height() * DEFAULT_APP_HEIGHT_SCALING)
         self.resize(default_screen_width, default_screen_height)
-
 
 def apply_stylesheet(application: QApplication, qss_path: str):
     with Path(qss_path).open("r", encoding="utf-8") as style_file:
@@ -69,7 +69,7 @@ def apply_stylesheet(application: QApplication, qss_path: str):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    apply_stylesheet(app, "styles/default.qss")
+    apply_stylesheet(app, resource_path("styles/default.qss"))
     main_window = MainWindow()
     main_window.show()
 

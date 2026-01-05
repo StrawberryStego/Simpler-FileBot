@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLa
 from backend.api_key_config import api_key_config
 from backend.database_worker import DatabaseWorker
 from backend.media_record import MediaRecord
+from backend.utils import resource_path
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
 from databases.omdb_python_db import OMDBPythonDB
@@ -158,20 +159,20 @@ class MatchOptionsWidget(QDialog):
         the_movie_db_button.clicked.connect(lambda: self.start_match(
             TheMovieDBPythonDB(self.media_records, self.is_tv_series), "the_movie_db"
         ))
-        the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.png")))
+        the_movie_db_button.setIcon(QIcon(QPixmap(resource_path("resources/TheMovieDB Logo.png"))))
         the_movie_db_button.setObjectName("dbBtn")
 
         omdb_db_button = QPushButton(" OMDB ")
         omdb_db_button.clicked.connect(lambda: self.start_match(
             OMDBPythonDB(self.media_records, self.is_tv_series), "omdb"
         ))
-        omdb_db_button.setIcon(QIcon(QPixmap("resources/OMDB Logo.png")))
+        omdb_db_button.setIcon(QIcon(QPixmap(resource_path("resources/OMDB Logo.png"))))
         omdb_db_button.setObjectName("dbBtn")
 
         tv_maze_db_button = QPushButton(" TVMaze ")
         tv_maze_db_button.clicked.connect(lambda: self.start_match(
             TVMazePythonDB(self.media_records, self.is_tv_series)))
-        tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
+        tv_maze_db_button.setIcon(QIcon(QPixmap(resource_path("resources/TVMaze Logo.png"))))
         tv_maze_db_button.setObjectName("dbBtn")
 
         file_name_match_db_button = QPushButton(" Attempt to match locally using metadata ")
