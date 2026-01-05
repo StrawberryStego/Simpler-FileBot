@@ -73,33 +73,9 @@ class MatchOptionsWidget(QDialog):
 
     def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
         """Populates the layout with UI components based on MediaRecords or Forced mode."""
-        """
-        # Display an error if the input contains a mix of movie and TV show files.
-        if MediaRecord.has_movies(media_records) and MediaRecord.has_episodes(media_records):
-            layout.addWidget(QLabel("Cannot rename both movies and tv series at the same time!"))
-            return
-
-        # Display an error if there are multiple TV series for an input list of episodes.
-        if not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) > 1:
-            layout.addWidget(QLabel("Cannot rename multiple tv series at the same time!"))
-            return
-
-        # Contains only episodes.
-        if not MediaRecord.has_movies(media_records):
-            layout.addLayout(self.create_layout_for_episode_matching(media_records))
-        # Contains only movies.
-        elif not MediaRecord.has_episodes(media_records):
-            layout.addLayout(self.create_layout_for_movie_matching(media_records))
-
-    def create_layout_for_episode_matching(self, media_records: list[MediaRecord]) -> QVBoxLayout:
-        # Mapping of database buttons to the type of media they support.
-        database_specs = self.retrieve_dictionary_of_db_buttons_with_mappings()
-
-        episode_matching_layout = QVBoxLayout()
-        """
 
         unique_titles = MediaRecord.get_unique_titles(media_records)
-        
+
         # 1. Determine actual content types present in the list
         # Check individual records instead of the widget-wide self.is_tv_series
         has_series = any(MediaRecord.is_tv_series(
@@ -134,7 +110,6 @@ class MatchOptionsWidget(QDialog):
 
         unique_titles = MediaRecord.get_unique_titles(media_records)
 
-        
         series_title = unique_titles.pop() if unique_titles else "Could not match title!"
 
         # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.

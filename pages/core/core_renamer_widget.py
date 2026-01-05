@@ -38,7 +38,7 @@ class CoreRenamerWidget(QWidget):
 
         # Utility Buttons contained within a VBox & Mode Selection.
         buttons_layout = QVBoxLayout()
-        
+
         mode_label = QLabel("Match Mode:")
         self.radio_auto = QRadioButton("Auto-detect")
         self.radio_series = QRadioButton("Force Series")
