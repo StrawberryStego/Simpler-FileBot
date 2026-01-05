@@ -1,0 +1,22 @@
+[MASTER]
+# Enable Pylint to load PySide6 binary extensions
+extension-pkg-whitelist=PySide6,PySide6.QtWidgets,PySide6.QtGui,PySide6.QtCore
+
+[MESSAGES CONTROL]
+# C0114, C0116 - missing docstrings
+# E0401 - import errors
+# R0902 - too-many-instance-attributes: (default is 7). GUI classes often exceed this.
+# R0903 - few public methods
+# R0915 - too-many-statements
+# C0103 - naming convention
+# W0246 - redundant-upline-call
+# no-name-in-module - Qt submoduls
+# no-member - disables "has no 'connect' member" errors
+disable=C0114,E0401,R0902,R0903,R0915,C0116,C0103,W0246,no-name-in-module,no-member
+
+[FORMAT]
+max-line-length=120
+
+[TYPECHECK]
+# Alternative way: tells Pylint that these modules have dynamic members
+generated-members=PySide6.*,QtCore.*,QtGui.*,QtWidgets.*
