@@ -16,7 +16,7 @@ class CoreToolBar(QWidget):
         self.output_box = output_box
 
         # Allow deleting files from the input box using the Delete key.
-        self.delete_shortcut = QShortcut(QKeySequence.Delete, self.input_box)
+        self.delete_shortcut = QShortcut(QKeySequence(QKeySequence.StandardKey.Delete), self.input_box)
         self.delete_shortcut.activated.connect(self.remove_file)
 
         core_tool_bar_layout = QHBoxLayout(self)
