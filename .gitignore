@@ -1,9 +1,6 @@
 /venv/
 .idea
-/dist/
-/build/
-**/__pycache__/
-api_keys.json
-formats.json
-settings.json
-.portable
+/backend/__pycache__/
+/databases/__pycache__/
+/pages/__pycache__/
+/tests/__pycache__/

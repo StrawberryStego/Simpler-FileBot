@@ -1,2 +1,0 @@
-rename this file ".portable" (or create new empty file)
-for app to save settings into CWD, making program portable
