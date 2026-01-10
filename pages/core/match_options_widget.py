@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QDialog, QListWidget, QVBoxLayout, QBoxLayout, QLa
 from backend.api_key_config import api_key_config
 from backend.database_worker import DatabaseWorker
 from backend.media_record import MediaRecord
+from backend.utils import resource_path
 from databases.database import Database
 from databases.file_name_match_db import FileNameMatchDB
 from databases.omdb_python_db import OMDBPythonDB
@@ -22,7 +23,7 @@ class MatchOptionsWidget(QDialog):
     Handles database matching and populating the output box with matched file names.
     """
 
-    def __init__(self, files_widget: DragAndDropFilesWidget, output_box: QListWidget, parent=None):
+    def __init__(self, files_widget: DragAndDropFilesWidget, output_box: QListWidget, parent=None, forced_mode=None):
         super().__init__(parent)
 
         self.setWindowTitle("Match Options")
@@ -38,7 +39,14 @@ class MatchOptionsWidget(QDialog):
             media_record = list_element.data(Qt.ItemDataRole.UserRole)
             self.media_records.append(media_record)
 
-        self.is_tv_series = MediaRecord.is_tv_series(self.media_records)
+        # Handle Radio Button logic from CoreRenamerWidget
+        # None = Auto, True = Force Series, False = Force Movies
+        if forced_mode is True:
+            self.is_tv_series = True
+        elif forced_mode is False:
+            self.is_tv_series = False
+        else:
+            self.is_tv_series = MediaRecord.is_tv_series(self.media_records)
 
         self.populate_match_options_layout(layout, self.media_records)
 
@@ -64,22 +72,34 @@ class MatchOptionsWidget(QDialog):
             super().reject()
 
     def populate_match_options_layout(self, layout: QBoxLayout, media_records: list[MediaRecord]):
-        """Populates the layout with UI components based on MediaRecords."""
-        # Display an error if the input contains a mix of movie and TV show files.
-        if MediaRecord.has_movies(media_records) and MediaRecord.has_episodes(media_records):
-            layout.addWidget(QLabel("Cannot rename both movies and tv series at the same time!"))
-            return
+        """Populates the layout with UI components based on MediaRecords or Forced mode."""
 
-        # Display an error if there are multiple TV series for an input list of episodes.
-        if not MediaRecord.has_movies(media_records) and len(MediaRecord.get_unique_titles(media_records)) > 1:
-            layout.addWidget(QLabel("Cannot rename multiple tv series at the same time!"))
-            return
+        unique_titles = MediaRecord.get_unique_titles(media_records)
 
-        # Contains only episodes.
-        if not MediaRecord.has_movies(media_records):
+        # 1. Determine actual content types present in the list
+        # Check individual records instead of the widget-wide self.is_tv_series
+        has_series = any(MediaRecord.is_tv_series(
+            [rec]) for rec in media_records)
+        has_movies = any(not MediaRecord.is_tv_series(
+            [rec]) for rec in media_records)
+
+        # 2. Priority 1: Mixed Warning
+        if has_series and has_movies:
+            mixed_warning = QLabel("Warning: Cannot rename both movies and tv series at the same time!")
+            mixed_warning.setObjectName("mixedWarning")
+            layout.addWidget(mixed_warning)
+
+        # 3. Priority 2: Multiple Titles of the same type (only if not already warned for mixed)
+        elif len(unique_titles) > 1:
+            warning = QLabel("Warning: Cannot rename multiple tv series at the same time!")
+            warning.setObjectName("multipleWarning")
+            layout.addWidget(warning)
+
+        # Layout selection
+        if self.is_tv_series:
             layout.addLayout(self.create_layout_for_episode_matching(media_records))
-        # Contains only movies.
-        elif not MediaRecord.has_episodes(media_records):
+        else:
+            # Movie Layout
             layout.addLayout(self.create_layout_for_movie_matching(media_records))
 
     def create_layout_for_episode_matching(self, media_records: list[MediaRecord]) -> QVBoxLayout:
@@ -89,6 +109,7 @@ class MatchOptionsWidget(QDialog):
         episode_matching_layout = QVBoxLayout()
 
         unique_titles = MediaRecord.get_unique_titles(media_records)
+
         series_title = unique_titles.pop() if unique_titles else "Could not match title!"
 
         # Add UI and logic to set a custom series name in case guessit retrieved an incorrect show name.
@@ -158,20 +179,20 @@ class MatchOptionsWidget(QDialog):
         the_movie_db_button.clicked.connect(lambda: self.start_match(
             TheMovieDBPythonDB(self.media_records, self.is_tv_series), "the_movie_db"
         ))
-        the_movie_db_button.setIcon(QIcon(QPixmap("resources/TheMovieDB Logo.png")))
+        the_movie_db_button.setIcon(QIcon(QPixmap(resource_path("resources/TheMovieDB Logo.png"))))
         the_movie_db_button.setObjectName("dbBtn")
 
         omdb_db_button = QPushButton(" OMDB ")
         omdb_db_button.clicked.connect(lambda: self.start_match(
             OMDBPythonDB(self.media_records, self.is_tv_series), "omdb"
         ))
-        omdb_db_button.setIcon(QIcon(QPixmap("resources/OMDB Logo.png")))
+        omdb_db_button.setIcon(QIcon(QPixmap(resource_path("resources/OMDB Logo.png"))))
         omdb_db_button.setObjectName("dbBtn")
 
         tv_maze_db_button = QPushButton(" TVMaze ")
         tv_maze_db_button.clicked.connect(lambda: self.start_match(
             TVMazePythonDB(self.media_records, self.is_tv_series)))
-        tv_maze_db_button.setIcon(QIcon(QPixmap("resources/TVMaze Logo.png")))
+        tv_maze_db_button.setIcon(QIcon(QPixmap(resource_path("resources/TVMaze Logo.png"))))
         tv_maze_db_button.setObjectName("dbBtn")
 
         file_name_match_db_button = QPushButton(" Attempt to match locally using metadata ")
@@ -243,6 +264,13 @@ class MatchOptionsWidget(QDialog):
         QApplication.restoreOverrideCursor()
         self._busy = False
         self.close()
+
+    @staticmethod
+    def is_mixed_media(media_records: list[MediaRecord]) -> bool:
+        """Checks if the list contains both movies and series."""
+        has_series = any(rec.is_tv_series for rec in media_records)
+        has_movies = any(not rec.is_tv_series for rec in media_records)
+        return has_series and has_movies
 
 
 def check_if_api_key_exists_otherwise_prompt_user(json_key: str) -> bool:

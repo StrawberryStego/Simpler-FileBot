@@ -1,21 +1,24 @@
-name: Run Python Tests
+name: Python v3.14 Tests
 
-on: [push]
+on: [ push ]
 
 jobs:
   test:
     name: Run Python Tests
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
 
-      - name: Install Dependencies
-        run: python -m pip install -r requirements.txt
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
 
-      - name: Run tests
-        run: pytest
+    - name: Run tests
+      run: pytest

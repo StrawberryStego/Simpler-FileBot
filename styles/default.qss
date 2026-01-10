@@ -62,3 +62,16 @@ QPushButton#dbBtn {
 #settings QListWidget::item {
     margin: 0.25em;
 }
+
+QLabel#warningLabel {
+    font-weight: bold;
+    font-size: 13pt;
+}
+
+QLabel#mixedWarning {
+    color: #ffcc00;
+}
+
+QLabel#multipleWarning {
+    color: orange;
+}
