@@ -5,7 +5,7 @@ from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QListWidget, QListWidgetItem, QMenu, QDialog, QVBoxLayout, QLabel
 
 from backend.media_record import MediaRecord
-
+from backend.utils import resource_path
 
 class DragAndDropFilesWidget(QListWidget):
     """
@@ -81,7 +81,7 @@ class DragAndDropFilesWidget(QListWidget):
     @staticmethod
     def __show_metadata_dialog(media_record: MediaRecord):
         metadata_dialog = QDialog()
-        metadata_dialog.setWindowIcon(QIcon(QPixmap("resources/Alternative App Logo.png")))
+        metadata_dialog.setWindowIcon(QIcon(QPixmap(resource_path("resources/Alternative App Logo.png"))))
         metadata_dialog.setWindowTitle(media_record.file_name)
 
         metadata_dialog_layout = QVBoxLayout(metadata_dialog)
