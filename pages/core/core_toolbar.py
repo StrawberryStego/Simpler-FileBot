@@ -1,5 +1,6 @@
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget, QListWidget, QHBoxLayout, QPushButton, QCheckBox, QFileDialog
+from PySide6.QtGui import QShortcut, QKeySequence
 
 from backend.settings_backend import retrieve_filename_analysis_only_flag, set_filename_analysis_only_flag
 from pages.core.drag_and_drop_files_widget import DragAndDropFilesWidget
@@ -13,6 +14,10 @@ class CoreToolBar(QWidget):
         super().__init__(parent)
         self.input_box = input_box
         self.output_box = output_box
+
+        # Allow deleting files from the input box using the Delete key.
+        self.delete_shortcut = QShortcut(QKeySequence(QKeySequence.StandardKey.Delete), self.input_box)
+        self.delete_shortcut.activated.connect(self.remove_file)
 
         core_tool_bar_layout = QHBoxLayout(self)
 
