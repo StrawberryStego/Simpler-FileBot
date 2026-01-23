@@ -3,7 +3,7 @@ import os.path
 from PySide6.QtCore import Qt, Slot, QTimer
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QListWidget, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QPushButton, \
-    QApplication, QDialog
+    QApplication, QDialog, QMenu, QToolButton
 
 from backend.core_backend import (get_invalid_file_names_and_fixes,
                                   perform_file_renaming)
@@ -38,7 +38,19 @@ class CoreRenamerWidget(QWidget):
         # Utility Buttons contained within a VBox.
         buttons_layout = QVBoxLayout()
         self.match_button = QPushButton("Match\n🗃")
-        self.rename_button = QPushButton("Rename\n🖋")
+
+        menu = QMenu(self)
+        menu.addAction("Hard Link")
+        menu.addAction("Soft Link")
+
+        self.rename_button = QToolButton(self)
+        self.rename_button.setText("Rename\n🖋")
+        self.rename_button.setMenu(menu)
+        self.rename_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        self.rename_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.rename_button.setAutoRaise(False)
+        self.rename_button.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+
         self.undo_button = QPushButton("Undo\n↩")
         buttons_layout.addWidget(self.match_button)
         buttons_layout.addWidget(self.rename_button)
@@ -94,6 +106,7 @@ class CoreRenamerWidget(QWidget):
         if return_code == QDialog.DialogCode.Accepted:
             # Enable the rename button once files are matched.
             self.rename_button.setEnabled(True)
+            self.rename_button.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             # Remove any old cached last_renamed files from previous renames.
             self.last_renames.clear()
 
@@ -102,6 +115,7 @@ class CoreRenamerWidget(QWidget):
         """Rename files from input box to names in output box if they're valid."""
         if not self.is_rename_allowed():
             self.rename_button.setEnabled(False)
+            self.rename_button.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
             self.undo_button.setEnabled(False)
             return
 
@@ -144,6 +158,7 @@ class CoreRenamerWidget(QWidget):
 
         # Disable the rename button and enable the undo button once files are successfully renamed.
         self.rename_button.setEnabled(False)
+        self.rename_button.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.undo_button.setEnabled(True)
 
     @Slot()

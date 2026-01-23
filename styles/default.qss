@@ -21,6 +21,12 @@ QListWidget#menu::item {
     min-height: 2em;
 }
 
+#core QToolButton {
+    font-size: 12pt;
+    min-height: 2em;
+    min-width: 3em;
+}
+
 #core QLabel {
     font-size: 15pt;
     margin-bottom: 0.25em;
