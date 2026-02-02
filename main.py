@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         # Additional window setup.
-        self.setWindowTitle("Simpler FileBot v1.5.3")
+        self.setWindowTitle("Simpler FileBot v1.5.4")
         self.setWindowIcon(QIcon(QPixmap(resource_path("resources/Alternative App Logo.png"))))
 
         # Set the main application to start at a percentage of the screen's size.
