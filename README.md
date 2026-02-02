@@ -20,6 +20,12 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 ## Installation
 [Download Source Code](https://github.com/StrawberryStego/Simpler-FileBot/releases)
 
+### Executable (Currently only for Windows)
+
+- Download `Simpler-FileBot.exe` from the Releases section
+
+- Run the executable
+
 ### Python
 
 - `pip install -r requirements.txt`
