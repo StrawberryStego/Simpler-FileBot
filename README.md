@@ -6,6 +6,8 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 *Special thanks* to [guessit](https://github.com/guessit-io/guessit) for analyzing and providing the metadata for filenames.
 
 ## Requirements
+**You might be able to skip this section if using the Executable installation option.**
+
 - [Python 3.10 - 3.14](https://www.python.org/downloads/) - 
   `Installation help:` [[Windows](https://www.geeksforgeeks.org/how-to-install-python-on-windows/)] [[Mac](https://www.geeksforgeeks.org/how-to-install-python-on-mac/)] [[Linux](https://www.geeksforgeeks.org/how-to-install-python-on-linux/)]
 
