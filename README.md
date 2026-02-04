@@ -39,6 +39,18 @@ This is a batch file-renaming GUI tool for movies and tv shows.
 
 - `Use launcher.bat to open Simpler FileBot`
 
+## ChromeOS / Crostini Support
+
+If you're running Simpler FileBot on ChromeOS using the Linux (Crostini) environment, you'll need to install additional X11 dependencies for proper Qt support:
+```bash
+sudo apt update
+sudo apt install libxcb-cursor0 libxcb-icccm4 libxcb-image0 \
+    libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+    libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0
+```
+
+The application will automatically detect ChromeOS/Crostini and switch to X11 mode for better stability. Without these dependencies, you may encounter Qt Wayland errors.
+
 ## Supported Databases
 `Simpler FileBot uses the following databases/APIs but is not endorsed, certified, or otherwise approved.`
 
