@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, Q
 from pages.core.main_page import MainPage
 from pages.formats import FormatsPage
 from pages.settings import SettingsPage
+from pages.apis import ApisPage
 from backend.utils import resource_path
 
 # Percentage of the screen's dimensions that various widget sizes should adhere to.
@@ -26,7 +27,7 @@ class MainWindow(QMainWindow):
 
         # Widget (List) that displays clickable tabs that allows for switching pages.
         self.menu = QListWidget()
-        self.menu.addItems(["🖋  Rename", "💾  Formats", "⚙️  Settings"])
+        self.menu.addItems(["🖋  Rename", "💾  Formats", "⚙️  Settings", "🔑  APIs"])
         central_layout.addWidget(self.menu)
 
         # QStackedWidget that stores different pages/widgets that can be switched to/from.
@@ -34,6 +35,7 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(MainPage())
         self.pages.addWidget(FormatsPage())
         self.pages.addWidget(SettingsPage())
+        self.pages.addWidget(ApisPage())
         self.pages.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         central_layout.addWidget(self.pages)
 
