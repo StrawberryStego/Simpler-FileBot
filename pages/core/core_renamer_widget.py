@@ -107,44 +107,75 @@ class CoreRenamerWidget(QWidget):
 
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
-        output_file_names: list[str] = []
-        for i in range(self.right_box.count()):
-            output_file_names.append(self.right_box.item(i).text())
+        # 1. Build complete target paths using helper method
+        full_output_paths = self._get_full_output_paths()
 
-        invalid_file_names_and_fixes: dict[str, str] = get_invalid_file_names_and_fixes(output_file_names)
+        # 2. Path validation
+        invalid_file_names_and_fixes = get_invalid_file_names_and_fixes(
+            full_output_paths
+        )
 
-        if len(invalid_file_names_and_fixes) > 0:
-            error_msg = "These matched names aren't valid. Will use fixed names:\n\n"
-
-            for i in range(self.right_box.count()):
-                matched_file_name = self.right_box.item(i).text()
-                fix = invalid_file_names_and_fixes.get(matched_file_name)
-                if fix is not None:
-                    # Replace the invalid matched name with the fix in the right box.
-                    self.right_box.item(i).setText(invalid_file_names_and_fixes.get(self.right_box.item(i).text()))
-
-                    error_msg += matched_file_name + " → " + fix + "\n"
-
+        if invalid_file_names_and_fixes:
+            self._handle_invalid_paths(full_output_paths, invalid_file_names_and_fixes)
             QApplication.restoreOverrideCursor()
-            ErrorPopupWidget(error_msg).exec()
+            return
 
+        # 3. Execution of the renaming process
+        self._execute_rename_cycle()
+
+    def _get_full_output_paths(self) -> list[str]:
+        """Helper to construct normalized absolute paths from the UI boxes."""
+        paths = []
+        for i in range(self.right_box.count()):
+            old_path = self.left_box.item(i).data(Qt.ItemDataRole.UserRole).full_file_path
+            new_text = os.path.expandvars(self.right_box.item(i).text())
+
+            if ":" in new_text or new_text.startswith(("\\", "/")):
+                paths.append(os.path.normpath(new_text))
+            else:
+                combined = os.path.join(os.path.dirname(old_path), new_text)
+                paths.append(os.path.normpath(combined))
+        return paths
+
+    def _handle_invalid_paths(self, full_output_paths, fixes):
+        """Updates UI with fixed names and shows error popup."""
+        error_msg = "Invalid filenames or paths detected. Suggested fixes:\n\n"
+
+        for i, current_full_path in enumerate(full_output_paths):
+            fix = fixes.get(current_full_path)
+            if not fix:
+                continue
+
+            # Update the UI text
+            is_full_path_display = ":" in self.right_box.item(i).text()
+            display_fix = fix if is_full_path_display else os.path.basename(fix)
+            self.right_box.item(i).setText(display_fix)
+
+            # Build error message
+            if is_full_path_display or os.path.dirname(current_full_path) != os.path.dirname(fix):
+                error_msg += f"PATH ERROR: {current_full_path}\nFIX: {fix}\n\n"
+            else:
+                error_msg += f"{os.path.basename(current_full_path)} → {os.path.basename(fix)}\n"
+
+        if "PATH ERROR" in error_msg:
+            error_msg += "Click Rename one more time if you agree with the new PATH\n"
+
+        ErrorPopupWidget(error_msg).exec()
+
+    def _execute_rename_cycle(self):
+        """Final execution wrapper with cleanup."""
+        success = False
         try:
             self.rename_files()
-        except ValueError:
-            QApplication.restoreOverrideCursor()
-            ErrorPopupWidget("Fatal error renaming files. Please file a bug report!").exec()
-            return
-        except OSError as e:
-            QApplication.restoreOverrideCursor()
+            success = True
+        except (ValueError, OSError) as e:
             ErrorPopupWidget(str(e)).exec()
-            return
         finally:
-            QTimer.singleShot(1000, QApplication.restoreOverrideCursor)
-            QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
-
-        # Disable the rename button and enable the undo button once files are successfully renamed.
-        self.rename_button.setEnabled(False)
-        self.undo_button.setEnabled(True)
+            QApplication.restoreOverrideCursor()
+            if success:
+                self.rename_button.setEnabled(False)
+                self.undo_button.setEnabled(True)
+                QTimer.singleShot(800, lambda: (self.left_box.clear(), self.right_box.clear()))
 
     @Slot()
     def undo_last_rename_operation(self):
@@ -168,14 +199,16 @@ class CoreRenamerWidget(QWidget):
         Each record in the input box must have a matching title to rename to.
         Moreover, there must actually be files to rename, i.e., input box actually has input.
         """
-        return self.left_box.count() == self.right_box.count() and self.left_box.count() > 0
+        return (
+            self.left_box.count() == self.right_box.count()
+            and self.left_box.count() > 0
+        )
 
     def rename_files(self):
         """
-        Attempts to rename the files from the left box to the filenames from the right box.
-        Raises an error if perform_file_renaming() fails.
+        Attempts to rename or move files.
+        If the pattern contains a path, it uses it. Otherwise, it renames in the original folder.
         """
-
         old_file_names = []
         new_file_names = []
 
@@ -184,19 +217,28 @@ class CoreRenamerWidget(QWidget):
             full_old_file_path = self.left_box.item(i).data(Qt.ItemDataRole.UserRole).full_file_path
             old_file_names.append(full_old_file_path)
 
-            # Retrieve the 'file name' from the right box (Does not contain the folder, just the file name).
-            output_file_name = self.right_box.item(i).text()
-            # Prefix the folder to the output file name.
-            full_new_path = os.path.join(os.path.dirname(full_old_file_path), output_file_name)
+            # Text from the right box (could be "Matrix.mkv" or "C:\Kino\2024\Matrix.mkv")
+            output_text = os.path.expandvars(self.right_box.item(i).text())
+
+            # We check if it is a new path (contains a disk or starts with a slash)
+            is_absolute = (
+                ":" in output_text
+                or output_text.startswith("\\")
+                or output_text.startswith("/")
+            )
+
+            if is_absolute:
+                full_new_path = output_text
+            else:
+                # If it's just a name, we'll link it to the original folder
+                full_new_path = os.path.join(
+                    os.path.dirname(full_old_file_path), output_text
+                )
 
             new_file_names.append(full_new_path)
 
-        # Error is raised if the file renaming fails.
+        # Performing the operation in the backend
         perform_file_renaming(old_file_names, new_file_names)
 
-        # Store filenames for undo operation.
-        if len(old_file_names) != len(new_file_names):
-            print(f"Fatal renaming error. Had {len(old_file_names)} but renamed {len(new_file_names)}. ?")
-            return
-
+        # Save for Undo function
         self.last_renames = list(zip(new_file_names, old_file_names))
