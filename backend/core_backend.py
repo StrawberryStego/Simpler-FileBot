@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from backend.formats_backend import retrieve_series_format_from_formats_file, retrieve_movies_format_from_formats_file
 from backend.media_record import MediaRecord
@@ -70,17 +71,48 @@ def match_titles_using_db_and_format(database: Database) -> list[str]:
 
 def get_invalid_file_names_and_fixes(file_names: list[str]) -> dict[str, str]:
     """
-    Checks for invalid file names and returns a dictionary of
-    {invalid_name: fix}.
+    Check a list of file paths for illegal characters.
+    Returns a dictionary mapping original invalid paths to suggested clean paths.
     """
-    forbidden_chars = set(r'\/:*?"<>|')
     invalid_files = {}
+    # Characters forbidden in both directory paths and filenames
+    forbidden_path_chars = set(r'*?"<>|')
+    # Characters forbidden specifically in filenames (including separators and drive colons)
+    forbidden_filename_chars = set(r'\/:*?"<>|')
 
-    for file_name in file_names:
-        if any(ch in forbidden_chars for ch in file_name):
-            # Replace forbidden characters with blanks.
-            suggested_fix = ''.join('' if ch in forbidden_chars else ch for ch in file_name)
-            invalid_files[file_name] = suggested_fix
+    for full_path in file_names:
+        # Normalize the input path (e.g., converts "C:\\Folder//File" to "C:\Folder\File")
+        # EXPAND FIRST: Convert %TEMP% to real path before checking for forbidden chars
+        expanded_path = os.path.expandvars(full_path)
+        normalized_path = os.path.normpath(expanded_path)
+        print(f"normalized path: {normalized_path}")
+
+        directory = os.path.dirname(normalized_path)
+        filename = os.path.basename(normalized_path)
+
+        # 1. Clean the filename by removing all forbidden characters
+        clean_filename = "".join(
+            "" if ch in forbidden_filename_chars else ch for ch in filename
+        )
+
+        # 2. Clean the directory path
+        path_chars = []
+        for i, ch in enumerate(directory):
+            # Special rule: Colon is ONLY allowed at index 1 (e.g., "C:")
+            if ch == ":" and i != 1:
+                continue
+            if ch in forbidden_path_chars:
+                continue
+            path_chars.append(ch)
+
+        clean_directory = "".join(path_chars)
+
+        # 3. Combine cleaned parts and normalize again to ensure a clean final path
+        suggested_fix = os.path.normpath(os.path.join(clean_directory, clean_filename))
+        print(f"suggested_fix: {suggested_fix}")
+        # If the cleaned version differs from the input, mark it as invalid
+        if normalized_path != suggested_fix:
+            invalid_files[full_path] = suggested_fix
 
     return invalid_files
 
@@ -91,10 +123,21 @@ def perform_file_renaming(old_file_names: list[str], new_file_names: list[str]):
                          f"new_file_names has {len(new_file_names)} files...?")
 
     for old_file_name, new_file_name in zip(old_file_names, new_file_names):
-        # Other generic OSErrors are propagated to the caller.
         try:
-            os.rename(old_file_name, new_file_name)
-        except PermissionError:
-            # Handle only the specific case where a file is being held by another process (Windows specific?).
-            # Current handling is just ignoring the specific file and moving onto the next one.
-            continue
+            # 1. Get folder path from new name
+            final_new_name = os.path.expandvars(new_file_name)
+            target_dir = os.path.dirname(final_new_name)
+
+            # 2. If the folder does not exist, create it (including subfolders)
+            if target_dir and not os.path.exists(target_dir):
+                os.makedirs(target_dir)
+
+            # 3. Use shutil.move instead of os.rename
+            # shutil.move also works between different drives (C: -> D:)
+            shutil.move(old_file_name, new_file_name)
+
+        except (PermissionError, OSError) as e:
+            print(f"Error {old_file_name}: {e}")
+            raise OSError(
+                f"Unable to process file {os.path.basename(old_file_name)}.\n\nError: {str(e)}"
+            ) from e
