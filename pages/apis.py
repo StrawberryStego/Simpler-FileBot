@@ -27,7 +27,7 @@ class ApisPage(QWidget):
         tmdb_tab = QWidget()
         tmdb_layout = QVBoxLayout(tmdb_tab)
 
-        tmdb_layout.addWidget(QLabel("The MovieDB API Key (v3 auth):"))
+        tmdb_layout.addWidget(QLabel("TheMovieDB API Key (v3 auth):"))
         self.tmdb_line_edit = QLineEdit()
         self.tmdb_line_edit.setPlaceholderText(
             "Enter your TMDB API key here...")
