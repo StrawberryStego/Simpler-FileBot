@@ -3,12 +3,20 @@ from json import JSONDecodeError
 from pathlib import Path
 
 from platformdirs import user_data_dir
-
+from backend.utils import is_portable
 
 class JSONConfig:
     """Handle one JSON config file with sensible defaults."""
     def __init__(self, filename: str, defaults: dict):
-        self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
+        local_dir = Path.cwd()
+
+        if is_portable():
+            # Use the local folder if in portable mode.
+            self.path = local_dir / filename
+        else:
+            # Otherwise use the standard system path.
+            self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
+
         self.defaults = defaults
         self._ensure_exists()
 

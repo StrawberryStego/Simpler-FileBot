@@ -3,3 +3,6 @@
 /dist/
 /build/
 **/__pycache__/
+api_keys.json
+formats.json
+settings.json
