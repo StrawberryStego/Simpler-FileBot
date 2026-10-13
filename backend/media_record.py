@@ -9,73 +9,33 @@ from guessit import guessit
 from backend.settings_backend import retrieve_excluded_folders, retrieve_filename_analysis_only_flag
 
 
-def retrieve_all_parent_prefixes(folder_path: str) -> set[str]:
-    """
-    Return the path itself plus every parent directory, all normalized.
-    Example: C:/Stuff/Movies  ➜  {'C:\\Stuff\\Movies', 'C:\\Stuff'}
-    """
-    prefixes: set[str] = set()
-    current_folder = os.path.normpath(folder_path).rstrip(os.sep)
-    while current_folder and current_folder not in prefixes:
-        prefixes.add(current_folder)
-        parent = os.path.dirname(current_folder)
-
-        # Reached the drive root. Break out of while loop. No need to add the drive root to prefixes.
-        if parent == current_folder:
-            break
-
-        current_folder = parent
-
-    return prefixes
-
-
-def remove_excluded_folders_from_file_path(file_path: str) -> str:
-    """
-    Strip all excluded folder(s) [strs returned by get_excluded_folders()] from a file path.
-    If no match is found the original path is returned.
-
-    Example
-    -------
-    excluded_folders = ["C:/Stuff/"]
-    file_path = "C:/Stuff/Show Name/Season 1/E01.mkv"
-    → "Show Name/Season 1/E01.mkv"
-    """
-    excluded_folders: list[str] = retrieve_excluded_folders()
-
-    # Return the file_path if there are no excluded folders.
-    if len(excluded_folders) == 0:
-        return file_path
-
-    prefixes: set[str] = set()
-    for folder in excluded_folders:
-        # Add all parent folder prefixes to prefixes.
-        prefixes.update(retrieve_all_parent_prefixes(folder))
-
-    # Normalize OS specific syntax.
-    normalized_file_path = os.path.normpath(file_path)
-
-    # Sort the prefixes from longest to shortest so the most-specific prefix is tried first.
-    for prefix in sorted(prefixes, key=len, reverse=True):
-        if normalized_file_path.lower().startswith(prefix.lower()):
-            # Remove the prefix and any leading separator that follows it.
-            cleaned_path = normalized_file_path[len(prefix):].lstrip(os.sep)
-            # Return the cleaned path after changing to forward slashes for an OS-agnostic result.
-            return cleaned_path.replace(os.sep, "/") if cleaned_path else ""
-
-    return file_path
-
-
 # pylint: disable=too-many-instance-attributes
 # Elements of this class should definitely be refactored into some list[MediaRecord] object, so it can hold
 # instance variables and methods that really should be in a helper list instead of a singular class.
 class MediaRecord:
     """Object that contains metadata about a file... more specifically, information about the filename."""
+    # The full path of a media file. This should not be truncated.
+    full_file_path: str
+    # The name of the media file. This does not contain any directories.
+    file_name: str
+    # The file extension of the media file, without the period, e.g., "mp4", "mkv", or "avi".
+    container: str
+    # Information about a media file that is derived from guessit.
+    metadata: dict
+
+    # Describes whether the media is a "movie" or an "episode".
+    media_type: str
+    # For movies, it's the movie title. For episodes, it's the series' title.
+    media_title: str
+    year: int
+    absolute_order: bool
 
     def __init__(self, file_path: str):
         self.full_file_path = file_path
         # Only include the filename, not the full path, e.g., C:/Folder/File.mp4 -> File.mp4.
         # Here, os is used as it handles different os' path conventions well.
         self.file_name = os.path.basename(file_path)
+        self.container: str = Path(file_path).suffix.lstrip(".")
 
         # Settings flag for whether we should use parent folders or just the filename for metadata analysis.
         use_only_filename_for_analysis = retrieve_filename_analysis_only_flag()
@@ -88,7 +48,6 @@ class MediaRecord:
         # Setting commonly used values, otherwise, get from metadata.
         self.media_type: str | None = self.metadata.get("type")
 
-        # self.title refers to the 'total' title. For movies, it's the movie title. For episodes, it's the series title.
         self.title: str | None = None
         raw_title: str | list | None = self.metadata.get("title")
         # If there were multiple titles found, just join them together with a space.
@@ -101,9 +60,6 @@ class MediaRecord:
 
         # Attempt to fill in 'season' or 'episode' if missing (This should not affect movies).
         self._enrich_metadata_via_file_name()
-
-        # Store the container from the original filename.
-        self.container: str = Path(file_path).suffix.lstrip(".")
 
         # Whether an episode is in absolute order or not.
         self.is_absolute_order: bool = False
@@ -199,3 +155,59 @@ class MediaRecord:
             return {1}
 
         return season_numbers
+
+
+def retrieve_all_parent_prefixes(folder_path: str) -> set[str]:
+    """
+    Return the path itself plus every parent directory, all normalized.
+    Example: C:/Stuff/Movies  ➜  {'C:\\Stuff\\Movies', 'C:\\Stuff'}
+    """
+    prefixes: set[str] = set()
+    current_folder = os.path.normpath(folder_path).rstrip(os.sep)
+    while current_folder and current_folder not in prefixes:
+        prefixes.add(current_folder)
+        parent = os.path.dirname(current_folder)
+
+        # Reached the drive root. Break out of while loop. No need to add the drive root to prefixes.
+        if parent == current_folder:
+            break
+
+        current_folder = parent
+
+    return prefixes
+
+
+def remove_excluded_folders_from_file_path(file_path: str) -> str:
+    """
+    Strip all excluded folder(s) [strs returned by get_excluded_folders()] from a file path.
+    If no match is found the original path is returned.
+
+    Example
+    -------
+    excluded_folders = ["C:/Stuff/"]
+    file_path = "C:/Stuff/Show Name/Season 1/E01.mkv"
+    → "Show Name/Season 1/E01.mkv"
+    """
+    excluded_folders: list[str] = retrieve_excluded_folders()
+
+    # Return the file_path if there are no excluded folders.
+    if len(excluded_folders) == 0:
+        return file_path
+
+    prefixes: set[str] = set()
+    for folder in excluded_folders:
+        # Add all parent folder prefixes to prefixes.
+        prefixes.update(retrieve_all_parent_prefixes(folder))
+
+    # Normalize OS specific syntax.
+    normalized_file_path = os.path.normpath(file_path)
+
+    # Sort the prefixes from longest to shortest so the most-specific prefix is tried first.
+    for prefix in sorted(prefixes, key=len, reverse=True):
+        if normalized_file_path.lower().startswith(prefix.lower()):
+            # Remove the prefix and any leading separator that follows it.
+            cleaned_path = normalized_file_path[len(prefix):].lstrip(os.sep)
+            # Return the cleaned path after changing to forward slashes for an OS-agnostic result.
+            return cleaned_path.replace(os.sep, "/") if cleaned_path else ""
+
+    return file_path

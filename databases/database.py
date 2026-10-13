@@ -5,6 +5,8 @@ from backend.media_record import MediaRecord
 
 class Database(ABC):
     """Abstract class to interact with a database and return data."""
+    media_records: list[MediaRecord]
+    is_tv_series: bool
 
     def __init__(self, media_records: list[MediaRecord], is_tv_series: bool = False):
         self.media_records = media_records
