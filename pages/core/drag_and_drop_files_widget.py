@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QListWidget, QListWidgetItem, QMenu, QDialog, QVBo
 from backend.media_record import MediaRecord
 from backend.utils import resource_path
 
+
 class DragAndDropFilesWidget(QListWidget):
     """
     QListWidget subclass to allow for drag-and-drop files functionality.

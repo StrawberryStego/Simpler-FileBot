@@ -7,6 +7,11 @@ from platformdirs import user_data_dir
 
 class JSONConfig:
     """Handle one JSON config file with sensible defaults."""
+    # Filesystem Path of "user_data_dir()/Simpler FileBot/" to use for data storage.
+    path: Path
+    # The defaults for a collection, e.g., {"the_movie_db": ""} for an unset API key.
+    defaults: dict
+
     def __init__(self, filename: str, defaults: dict):
         self.path = Path(user_data_dir(appauthor=False, appname="Simpler FileBot")) / filename
         self.defaults = defaults

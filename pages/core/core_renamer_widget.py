@@ -14,6 +14,18 @@ from pages.core.match_options_widget import MatchOptionsWidget
 
 class CoreRenamerWidget(QWidget):
     """Specifically contains the input box, output box, match button, rename button, and undo button."""
+    # The left input box which contains a list of MediaRecord(s). This is a DragAndDropFilesWidget to support inputs.
+    left_box: DragAndDropFilesWidget
+    # The right input box which contains a list of MediaRecord(s).
+    right_box: QListWidget
+
+    # Core widget buttons.
+    match_button: QPushButton
+    rename_button: QPushButton
+    undo_button: QPushButton
+
+    # Contains the list of the renamed file paths from a previous rename operation, as well as the old file paths.
+    last_renames: list[tuple[str, str]]
 
     def __init__(self, parent=None):
         super().__init__(parent)

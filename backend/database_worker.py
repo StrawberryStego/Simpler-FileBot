@@ -9,6 +9,8 @@ from databases.database import Database
 # pylint: disable=broad-exception-caught
 class DatabaseWorker(QObject, QRunnable):
     """Used to perform a database match in a thread... so the UI won't stall during slow database calls."""
+    database: Database
+
     finished = Signal(list)
     error = Signal()
 
