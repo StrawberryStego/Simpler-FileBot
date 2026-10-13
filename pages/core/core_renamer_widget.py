@@ -212,3 +212,8 @@ class CoreRenamerWidget(QWidget):
             return
 
         self.last_renames = list(zip(new_file_names, old_file_names))
+
+    def hack_add_files(self, user_input_files: list[str]):
+        """Unique method to add files to 'left_box' if a user drags files onto the executable."""
+        for file_name in user_input_files:
+            self.left_box.add_path(file_name)

@@ -6,15 +6,19 @@ from pages.core.core_toolbar import CoreToolBar
 
 class MainPage(QMainWindow):
     """Main container that hosts the renaming widget and toolbar widget."""
+    renamer_widget: CoreRenamerWidget
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        renamer_widget = CoreRenamerWidget()
-        toolbar_widget = CoreToolBar(renamer_widget.left_box, renamer_widget.right_box)
+        self.renamer_widget = CoreRenamerWidget()
+        toolbar_widget = CoreToolBar(self.renamer_widget.left_box, self.renamer_widget.right_box)
 
         # Combine all CorePage components into one QWidget().
         central_widget = QWidget()
         central_widget_layout = QVBoxLayout(central_widget)
-        central_widget_layout.addWidget(renamer_widget)
+        central_widget_layout.addWidget(self.renamer_widget)
         central_widget_layout.addWidget(toolbar_widget)
         self.setCentralWidget(central_widget)
+
+    def add_files(self, user_input_files: list[str]):
+        self.renamer_widget.hack_add_files(user_input_files)
