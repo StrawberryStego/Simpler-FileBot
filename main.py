@@ -19,6 +19,7 @@ DEFAULT_APP_HEIGHT_SCALING = 0.60
 
 class MainWindow(QMainWindow):
     """Container for different Widgets/Pages with a menu-style list for switching between pages."""
+    main_page: MainPage
 
     def __init__(self):
         super().__init__()
@@ -32,7 +33,8 @@ class MainWindow(QMainWindow):
 
         # QStackedWidget that stores different pages/widgets that can be switched to/from.
         self.pages = QStackedWidget()
-        self.pages.addWidget(MainPage())
+        self.main_page = MainPage()
+        self.pages.addWidget(self.main_page)
         self.pages.addWidget(FormatsPage())
         self.pages.addWidget(SettingsPage())
         self.pages.addWidget(ApisPage())
@@ -56,7 +58,7 @@ class MainWindow(QMainWindow):
         self.menu.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
         # Additional window setup.
-        self.setWindowTitle("Simpler FileBot v1.5.6")
+        self.setWindowTitle("Simpler FileBot v1.5.7")
         self.setWindowIcon(QIcon(QPixmap(resource_path("resources/Alternative App Logo.png"))))
 
         # Set the main application to start at a percentage of the screen's size.
@@ -70,11 +72,32 @@ def apply_stylesheet(application: QApplication, qss_path: str):
         application.setStyleSheet(style_file.read())
 
 
+def collect_files(paths: list[str]) -> list[str]:
+    """Collect only files from given paths, i.e., iterate through all folders and look for files."""
+    discovered_files = []
+    for path in paths:
+        if os.path.isdir(path):
+            # os.walk() traverses every folder and nested subfolder.
+            for root_folder, _, files in os.walk(path):
+                for file in files:
+                    discovered_files.append(os.path.join(root_folder, file))
+        elif os.path.isfile(path):
+            discovered_files.append(path)
+
+    return discovered_files
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     apply_stylesheet(app, resource_path("styles/default.qss"))
     main_window = MainWindow()
     main_window.show()
+
+    # Check if a folder or file was dropped onto the executable.
+    if len(sys.argv) > 1:
+        dropped_paths = [path for path in sys.argv[1:] if os.path.exists(path)]
+        if dropped_paths:
+            main_window.main_page.add_files(collect_files(dropped_paths))
 
     # If running as a GitHub Actions build check, auto-quit after one second since app is a UI.
     if os.environ.get("CI", "false").lower() == "true":
